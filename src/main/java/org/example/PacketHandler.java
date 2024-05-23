@@ -1,16 +1,22 @@
 package org.example;
 
 import com.google.gson.Gson;
-
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
+/*
+Offset	Length	Mnemonic	Notes
+00	    1	    bMagic	    Байт, що вказує на початок пакету - значення 13h (h - значить hex)
+01	    1	    bSrc	    Унікальний номер клієнтського застосування
+02	    8	    bPktId	    Номер повідомлення. Номер постійно збільшується. В форматі big-endian
+10	    4	    wLen	    Довжина пакету даних big-endian
+14	    2	    wCrc16	    CRC16 байтів (00-13) big-endian
+16	    wLen    bMsq	    Message - корисне повідомлення
+16+wLen	2	    wCrc16	    CRC16 байтів (16 до 16+wLen-1) big-endian*/
 public class PacketHandler {
     // Packet structure constants
     private static final byte MAGIC_BYTE = 0x13;
-    private static final int HEADER_LENGTH = 20; // 1+1+8+4+2+4
+    private static final int HEADER_LENGTH = 16; // 1+1+8+4+2
 
     // Fields for parsed data
     private byte bMagic;
@@ -20,6 +26,11 @@ public class PacketHandler {
     private int headerCrc;
     private byte[] encryptedMsg;
     private int messageSrc;
+    private CipherUtil cipherUtil;
+
+    public PacketHandler(CipherUtil cipherUtil) {
+        this.cipherUtil = cipherUtil;
+    }
 
     // Method to parse packet
     public void parsePacket(byte[] packet) throws Exception {
@@ -29,11 +40,12 @@ public class PacketHandler {
         }
 
         // Extract & validate header fields
-        bMagic = packet[0];
-        bSrc = packet[1];
-        bPktId = ByteBuffer.wrap(packet, 2, 8).getLong();
-        wLen = ByteBuffer.wrap(packet, 10, 4).getInt();
-        headerCrc = ByteBuffer.wrap(packet, 14, 2).getShort();
+        ByteBuffer buffer = ByteBuffer.wrap(packet);
+        bMagic = buffer.get();
+        bSrc = buffer.get();
+        bPktId = buffer.getLong();
+        wLen = buffer.getInt();
+        headerCrc = buffer.getShort();
 
         // Verify magic byte
         if(bMagic != MAGIC_BYTE) {
@@ -42,7 +54,7 @@ public class PacketHandler {
 
         // Verify header CRC
         byte[] headerBytes = Arrays.copyOfRange(packet, 0, 14);
-        if(!verifyCrc16(headerBytes, headerCrc)) {
+        if(CRC16.calculate(headerBytes) != headerCrc) {
             throw new IllegalArgumentException("Invalid header CRC");
         }
 
@@ -51,26 +63,13 @@ public class PacketHandler {
         messageSrc = ByteBuffer.wrap(packet, 16 + wLen, 2).getShort();
 
         // Verify message CRC
-        if(!verifyCrc16(encryptedMsg, messageSrc)) {
+        if(CRC16.calculate(encryptedMsg) != messageSrc) {
             throw new IllegalArgumentException("Invalid message SRC");
         }
     }
 
-    // CRC16 verification method
-    private boolean verifyCrc16(byte[] data, int expectedCrc) {
-        // Calculate CRC16 of data
-        int calculatedCrc = calculateCrc16(data);
-        return calculatedCrc == expectedCrc;
-    }
-
-    private int calculateCrc16(byte[] data) {
-        // TODO: Implement calculation of CRC16
-        return 0; // summon deleto to delete this shit
-    }
-
-    public byte[] decryptMessage(byte[] encryptedMsg) throws Exception {
-        // TODO: use some encryption algorithm here
-        return encryptedMsg; // summon deleto to delete this shit
+    public byte[] decryptMessage() throws Exception {
+        return cipherUtil.decrypt(encryptedMsg);
     }
 
     public Message parseDecryptedMsg(byte[] decryptedMsg) {
@@ -84,6 +83,13 @@ public class PacketHandler {
         String json = new String(payload, StandardCharsets.UTF_8);
         return new Gson().fromJson(json, Message.class);
     }
+    /*
+    Структура повідомлення (message)
+
+    Offset	Length	Mnemonic 	Notes
+    00	    4	    cType	    Код команди big-endian
+    04	    4	    bUserId	    Від кого надіслане повідомлення. В системі може бути багато клієнтів. А на кожному з цих клієнтів може працювати один з багатьох працівників. big-endian
+    08	    wLen-8  message	    корисна інформація, можна покласти JSON як масив байтів big-endian*/
     public static class Message {
         private int cType;
         private int bUserId;
