@@ -1,118 +1,45 @@
 package org.example;
 
-import com.google.gson.Gson;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-/*
-Offset	Length	Mnemonic	Notes
-00	    1	    bMagic	    Байт, що вказує на початок пакету - значення 13h (h - значить hex)
-01	    1	    bSrc	    Унікальний номер клієнтського застосування
-02	    8	    bPktId	    Номер повідомлення. Номер постійно збільшується. В форматі big-endian
-10	    4	    wLen	    Довжина пакету даних big-endian
-14	    2	    wCrc16	    CRC16 байтів (00-13) big-endian
-16	    wLen    bMsq	    Message - корисне повідомлення
-16+wLen	2	    wCrc16	    CRC16 байтів (16 до 16+wLen-1) big-endian*/
+
 public class PacketHandler {
-    // Packet structure constants
-    private static final byte MAGIC_BYTE = 0x13;
-    private static final int HEADER_LENGTH = 16; // 1+1+8+4+2
+    private final MessageHandler messageHandler;
 
-    // Fields for parsed data
-    private byte bMagic;
-    private byte bSrc;
-    private long bPktId;
-    private int wLen;
-    private int headerCrc;
-    private byte[] encryptedMsg;
-    private int messageSrc;
-    private CipherUtil cipherUtil;
-
-    public PacketHandler(CipherUtil cipherUtil) {
-        this.cipherUtil = cipherUtil;
+    public PacketHandler(MessageHandler messageHandler) {
+        this.messageHandler = messageHandler;
     }
 
-    // Method to parse packet
-    public void parsePacket(byte[] packet) throws Exception {
-        // Packet length validation
-        if(packet.length < HEADER_LENGTH) {
-            throw new IllegalArgumentException("Packet is too smol");
-        }
+    public byte[] constructPacketBytes(Packet pck) {
+        ByteBuffer buffer = ByteBuffer.allocate(18 + pck.getMessage().length);
+        buffer.put(pck.getbMagic());
+        buffer.put(pck.getbSrc());
+        buffer.putLong(pck.getbPktId());
+        buffer.putInt(pck.getmLen());
+        buffer.putShort((short)CRC16.getCRC16(buffer.array(), 0, 14));
+        buffer.put(pck.getMessage());
+        buffer.putShort((short)CRC16.getCRC16(buffer.array(), 16, pck.getMessage().length));
 
-        // Extract & validate header fields
-        ByteBuffer buffer = ByteBuffer.wrap(packet);
-        bMagic = buffer.get();
-        bSrc = buffer.get();
-        bPktId = buffer.getLong();
-        wLen = buffer.getInt();
-        headerCrc = buffer.getShort();
-
-        // Verify magic byte
-        if(bMagic != MAGIC_BYTE) {
-            throw new IllegalArgumentException("Invalid magic byte");
-        }
-
-        // Verify header CRC
-        byte[] headerBytes = Arrays.copyOfRange(packet, 0, 14);
-        if(CRC16.calculate(headerBytes) != headerCrc) {
-            throw new IllegalArgumentException("Invalid header CRC");
-        }
-
-        // Extract encrypted message and CRC
-        encryptedMsg = Arrays.copyOfRange(packet, 16, 16 + wLen);
-        messageSrc = ByteBuffer.wrap(packet, 16 + wLen, 2).getShort();
-
-        // Verify message CRC
-        if(CRC16.calculate(encryptedMsg) != messageSrc) {
-            throw new IllegalArgumentException("Invalid message SRC");
-        }
+        return buffer.array();
     }
 
-    public byte[] decryptMessage() throws Exception {
-        return cipherUtil.decrypt(encryptedMsg);
+    public Packet parsePacket(byte[] bytes, byte[] key) throws Exception {
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        byte bMagic = buffer.get();
+        byte bSrc = buffer.get();
+        long bPktId = buffer.getLong();
+        int mLen = buffer.getInt();
+        short crc1 = buffer.getShort();
+        byte[] msg = new byte[mLen];
+        buffer.get(msg);
+        short crc2 = buffer.getShort();
+
+        if(crc1 != (short)CRC16.getCRC16(bytes, 0, 14) || crc2 != (short)CRC16.getCRC16(bytes, 16, mLen)) {
+            throw new Exception("CRC16 check failed!");
+        }
+
+        DecryptUtil cipherUtil = new DecryptUtil(key);
+        byte[] decodedMsg = cipherUtil.decrypt(msg);
+
+        return new Packet(bMagic, bSrc, bPktId, decodedMsg.length, decodedMsg);
     }
-
-    public Message parseDecryptedMsg(byte[] decryptedMsg) {
-        ByteBuffer buffer = ByteBuffer.wrap(decryptedMsg);
-        int cType = buffer.getInt();
-        int bUserId = buffer.getInt();
-        byte[] payload = new byte[decryptedMsg.length - 8];
-        buffer.get(payload);
-
-        // Convert payload to POJO
-        String json = new String(payload, StandardCharsets.UTF_8);
-        return new Gson().fromJson(json, Message.class);
-    }
-    /*
-    Структура повідомлення (message)
-
-    Offset	Length	Mnemonic 	Notes
-    00	    4	    cType	    Код команди big-endian
-    04	    4	    bUserId	    Від кого надіслане повідомлення. В системі може бути багато клієнтів. А на кожному з цих клієнтів може працювати один з багатьох працівників. big-endian
-    08	    wLen-8  message	    корисна інформація, можна покласти JSON як масив байтів big-endian*/
-    public static class Message {
-        private int cType;
-        private int bUserId;
-        private String payload;
-
-        public int getbUserId() {
-            return bUserId;
-        }
-        public int getcType() {
-            return cType;
-        }
-        public String getPayload() {
-            return payload;
-        }
-        public void setbUserId(int bUserId) {
-            this.bUserId = bUserId;
-        }
-        public void setcType(int cType) {
-            this.cType = cType;
-        }
-        public void setPayload(String payload) {
-            this.payload = payload;
-        }
-    }
-
 }
