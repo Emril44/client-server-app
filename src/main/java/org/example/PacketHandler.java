@@ -37,8 +37,8 @@ public class PacketHandler {
             throw new Exception("CRC16 check failed!");
         }
 
-        DecryptUtil cipherUtil = new DecryptUtil(key);
-        byte[] decodedMsg = cipherUtil.decrypt(msg);
+        DecryptUtil decryptUtil = new DecryptUtil(key);
+        byte[] decodedMsg = decryptUtil.decrypt(msg);
 
         return new Packet(bMagic, bSrc, bPktId, decodedMsg.length, decodedMsg);
     }

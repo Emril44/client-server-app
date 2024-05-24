@@ -43,7 +43,7 @@ public class MessagePacketTest {
         assertEquals(origPacket1.getbMagic(), parsedPacket.getbMagic());
         assertEquals(origPacket1.getbSrc(), parsedPacket.getbSrc());
         assertEquals(origPacket1.getbPktId(), parsedPacket.getbPktId());
-        assertEquals(origPacket1.getmLen(), parsedPacket.getmLen());
-        assertArrayEquals(origPacket.getMessage(), origPacket1.getMessage());
+        assertEquals(origPacket.getmLen(), parsedPacket.getmLen());
+        assertArrayEquals(origPacket.getMessage(), parsedPacket.getMessage());
     }
 }
