@@ -1,9 +1,5 @@
-import org.example.Message;
-import org.example.MessageHandler;
-import org.example.Packet;
-import org.example.PacketHandler;
+import org.example.*;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

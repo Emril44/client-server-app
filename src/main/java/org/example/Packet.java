@@ -42,6 +42,4 @@ public class Packet {
     public byte[] getMessage() {
         return message;
     }
-
-
 }
