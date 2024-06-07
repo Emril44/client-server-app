@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultiClientTCPTest {
-    private static final int CLIENT_NUM = 1;
+    private static final int CLIENT_NUM = 5;
 
     @BeforeEach
     public void setup() throws Exception {

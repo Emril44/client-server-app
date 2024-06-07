@@ -35,16 +35,22 @@ public class StoreServerTCP {
             ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
 
                 while(true) {
-                    // Parse received packet
-                    byte[] data = (byte[]) in.readObject();
-                    Packet packet = packetHandler.parsePacket(data, key);
-                    System.out.println("Received: " + new String(packet.getMessage()));
+                    try {
+                        // Parse received packet
+                        byte[] data = (byte[]) in.readObject();
+                        Packet packet = packetHandler.parsePacket(data, key);
+                        System.out.println("Received: " + new String(packet.getMessage()));
 
-                    // Build response packet
-                    byte[] resMsg = "OK".getBytes();
-                    Packet resPacket = new Packet((byte) 0x13, packet.getbSrc(), packet.getbPktId(), resMsg.length, resMsg);
-                    byte[] resData = packetHandler.constructPacketBytes(resPacket);
-                    out.writeObject(resData);
+                        // Build response packet
+                        byte[] resMsg = "OK".getBytes();
+                        Packet resPacket = new Packet((byte) 0x13, packet.getbSrc(), packet.getbPktId(), resMsg.length, resMsg);
+                        byte[] resData = packetHandler.constructPacketBytes(resPacket);
+                        out.writeObject(resData);
+                        out.flush();
+                    } catch (EOFException e) {
+                        // End of stream, close connection
+                        break;
+                    }
                 }
             } catch (Exception e) {
                 System.err.println("Error with creating IO streams in TCP!");

@@ -9,15 +9,18 @@ public class PacketHandler {
         this.messageHandler = messageHandler;
     }
 
-    public byte[] constructPacketBytes(Packet pck) {
-        ByteBuffer buffer = ByteBuffer.allocate(18 + pck.getMessage().length);
+    public byte[] constructPacketBytes(Packet pck) throws Exception {
+        EncryptUtil encryptUtil = new EncryptUtil("1234567812345678".getBytes());
+        byte[] encryptedMsg = encryptUtil.encrypt(pck.getMessage());
+
+        ByteBuffer buffer = ByteBuffer.allocate(18 + encryptedMsg.length);
         buffer.put(pck.getbMagic());
         buffer.put(pck.getbSrc());
         buffer.putLong(pck.getbPktId());
-        buffer.putInt(pck.getmLen());
+        buffer.putInt(encryptedMsg.length);
         buffer.putShort((short)CRC16.getCRC16(buffer.array(), 0, 14));
-        buffer.put(pck.getMessage());
-        buffer.putShort((short)CRC16.getCRC16(buffer.array(), 16, pck.getMessage().length));
+        buffer.put(encryptedMsg);
+        buffer.putShort((short)CRC16.getCRC16(buffer.array(), 16, encryptedMsg.length));
 
         return buffer.array();
     }

@@ -15,6 +15,7 @@ public class StoreClientTCP {
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
              ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
+
             byte[] msg = "SERVERING IMEDIATELY".getBytes();
             Packet packet = new Packet((byte) 0x13, (byte) 1, 1, msg.length, msg);
             byte[] data = packetHandler.constructPacketBytes(packet);

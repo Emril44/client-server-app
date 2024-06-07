@@ -3,6 +3,7 @@ package org.example;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.util.Arrays;
 
 public class DecryptUtil {
     private Key key;
