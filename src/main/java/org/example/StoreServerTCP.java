@@ -2,9 +2,12 @@ package org.example;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StoreServerTCP {
     private static final int PORT = 2077;
+    private static final List<Socket> clientSockets = new ArrayList<>();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -12,10 +15,28 @@ public class StoreServerTCP {
 
             while(true) {
                 Socket clientSocket = serverSocket.accept();
+                synchronized (clientSocket) {
+                    clientSockets.add(clientSocket);
+                }
                 new Thread(new ClientHandler(clientSocket)).start();
             }
         } catch (IOException e) {
             System.err.println("Error starting TCP server!");
+            e.printStackTrace();
+        }
+    }
+
+    public static void closeClientConnection(int clientIndex) {
+        synchronized (clientSockets) {
+            if (clientIndex >= 0 && clientIndex < clientSockets.size()) {
+                try {
+                    clientSockets.get(clientIndex).close();
+                    System.out.println("Closed connection for client " + (clientIndex + 1));
+                } catch (IOException e) {
+                    System.err.println("Error closing client connection!");
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
