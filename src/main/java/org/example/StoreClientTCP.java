@@ -14,7 +14,10 @@ public class StoreClientTCP {
 
     public static void main(String[] args) {
         packetHandler = new PacketHandler(new MessageHandler(key));
+        connectAndCommunicate();
+    }
 
+    public static void connectAndCommunicate() {
         boolean connected = false;
         int attempt = 0;
 
@@ -23,39 +26,36 @@ public class StoreClientTCP {
                  ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-                // connected; good job! :D
                 connected = true;
-                attempt = 0;
+                System.out.println("Connected to the server.");
 
-                byte[] msg = "SERVERING IMEDIATELY".getBytes();
-                Packet packet = new Packet((byte) 0x13, (byte) 1, 1, msg.length, msg);
-                byte[] data = packetHandler.constructPacketBytes(packet);
-                out.writeObject(data);
+                // Initial communication with server
+                communicateWithServer(out, in);
 
-                byte[] resData = (byte[]) in.readObject();
-                Packet resPacket = packetHandler.parsePacket(resData, key);
-                System.out.println("Server response: " + new String(resPacket.getMessage()));
-            }  catch (InterruptedException e) {
-                System.out.println("Client interrupted. Attempting to reconnect...");
-                attempt++;
-                if (attempt >= MAX_RETRY_ATTEMPTS) {
-                    System.out.println("Max retry attempts reached. Could not connect to the server.");
-                    break;
+                int comNum = 5;
+                // Keep communicating with the server
+                for (int i = 0; i < comNum; i++) {
+                    try {
+                        Thread.sleep(3000); // Wait before sending the next message
+                        communicateWithServer(out, in);
+                    } catch (IOException | ClassNotFoundException e) {
+                        System.out.println("Connection lost. Attempting to reconnect...");
+                        connected = false; // Exit inner loop to reconnect
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.out.println("Retry interrupted.");
+                        connected = false;
+                        break;
+                    }
                 }
-                try {
-                    Thread.sleep(RETRY_DELAY_MS); // Wait before retrying
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    System.out.println("Retry interrupted.");
-                    break;
-                }
+
             } catch (Exception e) {
                 attempt++;
+                System.out.println("Failed to connect. Retrying to connect... (Attempt " + attempt + ")");
                 if (attempt >= MAX_RETRY_ATTEMPTS) {
                     System.out.println("Max retry attempts reached. Could not connect to the server.");
                     break;
                 }
-                System.out.println("Connection lost. Retrying to connect... (Attempt " + attempt + ")");
                 try {
                     Thread.sleep(RETRY_DELAY_MS); // Wait before retrying
                 } catch (InterruptedException ie) {
@@ -65,5 +65,16 @@ public class StoreClientTCP {
                 }
             }
         }
+    }
+
+    private static void communicateWithServer(ObjectOutputStream out, ObjectInputStream in) throws Exception {
+        byte[] msg = "SERVERING IMEDIATELY".getBytes();
+        Packet packet = new Packet((byte) 0x13, (byte) 1, 1, msg.length, msg);
+        byte[] data = packetHandler.constructPacketBytes(packet);
+        out.writeObject(data);
+
+        byte[] resData = (byte[]) in.readObject();
+        Packet resPacket = packetHandler.parsePacket(resData, key);
+        System.out.println("Server response: " + new String(resPacket.getMessage()));
     }
 }

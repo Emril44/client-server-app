@@ -7,35 +7,50 @@ import java.util.List;
 
 public class StoreServerTCP {
     private static final int PORT = 2077;
-    private static final List<Socket> clientSockets = new ArrayList<>();
+    public static final List<Socket> clientSockets = new ArrayList<>();
+    private static ServerSocket serverSocket;
+    private static boolean running = true;
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try {
+            serverSocket = new ServerSocket(PORT);
+            //running = true;
             System.out.println("TCP Server started om port: " + PORT);
 
-            while(true) {
+            while(!serverSocket.isClosed()) {
+                System.out.println("Waiting for client connection...");
                 Socket clientSocket = serverSocket.accept();
-                synchronized (clientSocket) {
+                System.out.println("Client connected from " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
+                synchronized (clientSockets) {
                     clientSockets.add(clientSocket);
+                    System.out.println("Client added to the list, total clients: " + clientSockets.size());
                 }
                 new Thread(new ClientHandler(clientSocket)).start();
             }
         } catch (IOException e) {
-            System.err.println("Error starting TCP server!");
-            e.printStackTrace();
+            if(running) {
+                System.err.println("Error starting TCP server!");
+                e.printStackTrace();
+            }
+        } finally {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing server socket!");
+                }
+            }
         }
     }
 
-    public static void closeClientConnection(int clientIndex) {
-        synchronized (clientSockets) {
-            if (clientIndex >= 0 && clientIndex < clientSockets.size()) {
-                try {
-                    clientSockets.get(clientIndex).close();
-                    System.out.println("Closed connection for client " + (clientIndex + 1));
-                } catch (IOException e) {
-                    System.err.println("Error closing client connection!");
-                    e.printStackTrace();
-                }
+    public static void stopServer() {
+        running = false;
+        if (serverSocket != null && !serverSocket.isClosed()) {
+            try {
+                serverSocket.close();
+                System.out.println("Server closed.");
+            } catch (IOException e) {
+                System.err.println("Error closing server socket!");
             }
         }
     }
