@@ -8,6 +8,15 @@ public class Product {
     private int amount;
     private double price;
 
+    public Product(int id, String name, String description, String producer, int amount, double price) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.producer = producer;
+        this.amount = amount;
+        this.price = price;
+    }
+
     public int getId() {
         return id;
     }
@@ -28,6 +37,26 @@ public class Product {
 
     public double getPrice() {
         return this.price;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setProducer(String producer) {
+        this.producer = producer;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String toString(){
