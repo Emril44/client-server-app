@@ -1,4 +1,8 @@
-package org.example;
+package org.example.network.tcp;
+
+import org.example.handlers.MessageHandler;
+import org.example.handlers.PacketHandler;
+import org.example.models.Packet;
 
 import java.net.*;
 import java.io.*;

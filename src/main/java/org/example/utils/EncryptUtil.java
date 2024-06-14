@@ -1,20 +1,19 @@
-package org.example;
+package org.example.utils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
-import java.util.Arrays;
 
-public class DecryptUtil {
+public class EncryptUtil {
     private Key key;
 
-    public DecryptUtil(byte[] key) {
+    public EncryptUtil(byte[] key) {
         this.key = new SecretKeySpec(key, "AES");
     }
 
-    public byte[] decrypt(byte[] data) throws Exception {
+    public byte[] encrypt(byte[] data) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, key);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
         return cipher.doFinal(data);
     }
 }

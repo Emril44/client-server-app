@@ -1,4 +1,8 @@
-package org.example;
+package org.example.network.udp;
+
+import org.example.handlers.MessageHandler;
+import org.example.handlers.PacketHandler;
+import org.example.models.Packet;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

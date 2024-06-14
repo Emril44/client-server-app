@@ -1,5 +1,7 @@
-import org.example.StoreClientUDP;
-import org.example.StoreServerUDP;
+package NetworkTest;
+
+import org.example.network.udp.StoreClientUDP;
+import org.example.network.udp.StoreServerUDP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

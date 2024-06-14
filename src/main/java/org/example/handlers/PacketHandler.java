@@ -1,4 +1,9 @@
-package org.example;
+package org.example.handlers;
+
+import org.example.utils.CRC16;
+import org.example.utils.DecryptUtil;
+import org.example.utils.EncryptUtil;
+import org.example.models.Packet;
 
 import java.nio.ByteBuffer;
 
@@ -18,7 +23,7 @@ public class PacketHandler {
         buffer.put(pck.getbSrc());
         buffer.putLong(pck.getbPktId());
         buffer.putInt(encryptedMsg.length);
-        buffer.putShort((short)CRC16.getCRC16(buffer.array(), 0, 14));
+        buffer.putShort((short) CRC16.getCRC16(buffer.array(), 0, 14));
         buffer.put(encryptedMsg);
         buffer.putShort((short)CRC16.getCRC16(buffer.array(), 16, encryptedMsg.length));
 

@@ -1,5 +1,7 @@
-import org.example.StoreClientTCP;
-import org.example.StoreServerTCP;
+package NetworkTest;
+
+import org.example.network.tcp.StoreClientTCP;
+import org.example.network.tcp.StoreServerTCP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
