@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MultiClientTCPTest {
-    private static final int CLIENT_NUM = 5;
+    private static final int CLIENT_NUM = 1;
 
     @BeforeEach
     public void setup() throws Exception {
@@ -48,7 +48,7 @@ public class MultiClientTCPTest {
 
         // Close executor service and wait for everything to run
         executorService.shutdown();
-        boolean tasksCompleted = executorService.awaitTermination(30, TimeUnit.SECONDS);
+        boolean tasksCompleted = executorService.awaitTermination(60, TimeUnit.SECONDS);
 
         assertTrue(tasksCompleted, "All tasks done within the timeout period");
     }

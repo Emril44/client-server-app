@@ -6,12 +6,13 @@ import org.example.models.Packet;
 
 import java.net.*;
 import java.io.*;
+import java.util.Arrays;
 
 public class StoreClientTCP {
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 2077;
     private static final int MAX_RETRY_ATTEMPTS = 5;
-    private static final int RETRY_DELAY_MS = 2000;
+    private static final int RETRY_DELAY_MS = 1000;
 
     private static PacketHandler packetHandler;
     private static byte[] key = "1234567812345678".getBytes();
@@ -31,7 +32,7 @@ public class StoreClientTCP {
                  ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
                 connected = true;
-                System.out.println("Connected to the server.");
+                System.out.println("CLIENT Connected to the server.");
 
                 // Initial communication with server
                 communicateWithServer(out, in);
@@ -52,7 +53,6 @@ public class StoreClientTCP {
                         break;
                     }
                 }
-
             } catch (Exception e) {
                 attempt++;
                 System.out.println("Failed to connect. Retrying to connect... (Attempt " + attempt + ")");
@@ -75,10 +75,19 @@ public class StoreClientTCP {
         byte[] msg = "SERVERING IMEDIATELY".getBytes();
         Packet packet = new Packet((byte) 0x13, (byte) 1, 1, msg.length, msg);
         byte[] data = packetHandler.constructPacketBytes(packet);
+        System.out.println("Sending packet: " + Arrays.toString(data));
         out.writeObject(data);
+        out.flush();
 
-        byte[] resData = (byte[]) in.readObject();
-        Packet resPacket = packetHandler.parsePacket(resData, key);
-        System.out.println("Server response: " + new String(resPacket.getMessage()));
+        try {
+            byte[] resData = (byte[]) in.readObject();
+            System.out.println("Received packet: " + Arrays.toString(resData));
+            Packet resPacket = packetHandler.parsePacket(resData, key);
+            System.out.println("Server response: " + new String(resPacket.getMessage()));
+        } catch (Exception e) {
+            System.err.println("Error in client receiving or processing packet!");
+            e.printStackTrace();
+            throw e; // Rethrow exception to handle reconnection logic
+        }
     }
 }

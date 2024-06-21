@@ -2,7 +2,11 @@ package org.example.network.tcp;
 
 import org.example.handlers.MessageHandler;
 import org.example.handlers.PacketHandler;
-import org.example.models.Packet;
+import org.example.network.Processor;
+import org.example.network.Receiver;
+import org.example.network.Sender;
+import org.example.utils.DecryptUtil;
+import org.example.utils.EncryptUtil;
 
 import java.io.*;
 import java.net.*;
@@ -11,17 +15,26 @@ import java.util.List;
 
 public class StoreServerTCP {
     private static final int PORT = 2077;
-    public static final List<Socket> clientSockets = new ArrayList<>();
-    private static ServerSocket serverSocket;
     private static boolean running = true;
+    private static final Processor processor;
+    private static final byte[] key = "1234567812345678".getBytes();
+    private static ServerSocket serverSocket;
+    private static MessageHandler messageHandler = new MessageHandler(key);
+    private static PacketHandler packetHandler = new PacketHandler(messageHandler);
+
+    static {
+        EncryptUtil encryptUtil = new EncryptUtil(key);
+        Sender sender = new Sender(packetHandler);
+        processor = new Processor(encryptUtil, sender);
+    }
+    public static final List<Socket> clientSockets = new ArrayList<>();
 
     public static void main(String[] args) {
         try {
             serverSocket = new ServerSocket(PORT);
-            //running = true;
             System.out.println("TCP Server started om port: " + PORT);
 
-            while(!serverSocket.isClosed()) {
+            while(running) {
                 System.out.println("Waiting for client connection...");
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected from " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
@@ -36,70 +49,48 @@ public class StoreServerTCP {
                 System.err.println("Error starting TCP server!");
                 e.printStackTrace();
             }
-        } finally {
-            if (serverSocket != null && !serverSocket.isClosed()) {
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    System.err.println("Error closing server socket!");
-                }
-            }
         }
     }
 
     public static void stopServer() {
         running = false;
-        if (serverSocket != null && !serverSocket.isClosed()) {
-            try {
-                serverSocket.close();
-                System.out.println("Server closed.");
-            } catch (IOException e) {
-                System.err.println("Error closing server socket!");
+        synchronized (clientSockets) {
+            for (Socket socket : clientSockets) {
+                try {
+                    socket.close();
+                } catch (Exception e) {
+                    System.err.println("Error closing client socket!");
+                }
             }
         }
     }
 
     private static class ClientHandler implements Runnable {
         private Socket clientSocket;
-        private PacketHandler packetHandler;
-        private byte[] key = "1234567812345678".getBytes();
 
         public ClientHandler(Socket socket) {
             this.clientSocket = socket;
-            this.packetHandler = new PacketHandler(new MessageHandler(key));
         }
 
         @Override
         public void run() {
-            try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
-
-                while(true) {
-                    try {
-                        // Parse received packet
-                        byte[] data = (byte[]) in.readObject();
-                        Packet packet = packetHandler.parsePacket(data, key);
-                        System.out.println("Received: " + new String(packet.getMessage()));
-
-                        // Build response packet
-                        byte[] resMsg = "OK".getBytes();
-                        Packet resPacket = new Packet((byte) 0x13, packet.getbSrc(), packet.getbPktId(), resMsg.length, resMsg);
-                        byte[] resData = packetHandler.constructPacketBytes(resPacket);
-                        out.writeObject(resData);
-                        out.flush();
-                    } catch (EOFException e) {
-                        // End of stream, close connection
-                        break;
-                    }
-                }
+            try {
+                DecryptUtil decryptUtil = new DecryptUtil(key);
+                Sender sender = new Sender(packetHandler);
+                Receiver receiver = new ReceiverTCP(clientSocket, decryptUtil, processor, packetHandler, sender);
+                receiver.receiveMessage();
             } catch (Exception e) {
-                System.err.println("Error with creating IO streams in TCP!");
+                System.err.println("Error with client communication!");
                 e.printStackTrace();
             } finally {
                 try {
                     clientSocket.close();
-                } catch (IOException e) {
-                    System.err.println("Error closing TCP client socket!");
+                    synchronized (clientSockets) {
+                        clientSockets.remove(clientSocket);
+                        System.out.println("Client removed from the list, total clients: " + clientSockets.size());
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error closing client socket!");
                 }
             }
         }
