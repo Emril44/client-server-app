@@ -50,8 +50,6 @@ public class PacketHandler {
         buffer.get(msg);
         short crc2 = buffer.getShort();
 
-        System.out.println("Parsed packet fields: bMagic=" + bMagic + ", bSrc=" + bSrc + ", bPktId=" + bPktId + ", mLen=" + mLen + ", crc1=" + crc1 + ", crc2=" + crc2);
-
         if (crc1 != (short) CRC16.getCRC16(bytes, 0, 14) || crc2 != (short) CRC16.getCRC16(bytes, 16, mLen)) {
             throw new Exception("CRC16 check failed!");
         }

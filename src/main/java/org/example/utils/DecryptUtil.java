@@ -15,10 +15,7 @@ public class DecryptUtil {
     public byte[] decrypt(byte[] data) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decryptedData = cipher.doFinal(data);
-        System.out.println("Decrypting data: " + Arrays.toString(data));
-        System.out.println("Decrypted data: " + Arrays.toString(decryptedData));
-        return decryptedData;
+        return cipher.doFinal(data);
     }
 
     public byte[] getKey() {

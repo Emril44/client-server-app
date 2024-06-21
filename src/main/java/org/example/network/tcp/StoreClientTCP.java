@@ -35,14 +35,17 @@ public class StoreClientTCP {
                 System.out.println("CLIENT Connected to the server.");
 
                 // Initial communication with server
-                communicateWithServer(out, in);
+                communicateWithServer(out, in, "GET_AMOUNT:1");
+                communicateWithServer(out, in, "DEDUCT_AMOUNT:1:10");
+                communicateWithServer(out, in, "ADD_AMOUNT:1:5");
+                communicateWithServer(out, in, "SET_PRICE:1:49.99");
 
                 int comNum = 5;
                 // Keep communicating with the server
                 for (int i = 0; i < comNum; i++) {
                     try {
                         Thread.sleep(3000); // Wait before sending the next message
-                        communicateWithServer(out, in);
+                        communicateWithServer(out, in, "GET_AMOUNT:1");
                     } catch (IOException | ClassNotFoundException e) {
                         System.out.println("Connection lost. Attempting to reconnect...");
                         connected = false; // Exit inner loop to reconnect
@@ -71,17 +74,15 @@ public class StoreClientTCP {
         }
     }
 
-    private static void communicateWithServer(ObjectOutputStream out, ObjectInputStream in) throws Exception {
-        byte[] msg = "SERVERING IMEDIATELY".getBytes();
+    private static void communicateWithServer(ObjectOutputStream out, ObjectInputStream in, String message) throws Exception {
+        byte[] msg = message.getBytes();
         Packet packet = new Packet((byte) 0x13, (byte) 1, 1, msg.length, msg);
         byte[] data = packetHandler.constructPacketBytes(packet);
-        System.out.println("Sending packet: " + Arrays.toString(data));
         out.writeObject(data);
         out.flush();
 
         try {
             byte[] resData = (byte[]) in.readObject();
-            System.out.println("Received packet: " + Arrays.toString(resData));
             Packet resPacket = packetHandler.parsePacket(resData, key);
             System.out.println("Server response: " + new String(resPacket.getMessage()));
         } catch (Exception e) {

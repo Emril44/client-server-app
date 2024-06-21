@@ -35,7 +35,6 @@ public class ReceiverTCP implements Receiver {
             while(true) {
                 try {
                     byte[] packetBytes = (byte[]) in.readObject();
-                    System.out.println("Received packet: " + Arrays.toString(packetBytes));
                     Packet packet = packetHandler.parsePacket(packetBytes, decryptUtil.getKey());
                     processor.process(new Message(packet.getbMagic(), packet.getbSrc(), packet.getMessage()), out);
                 } catch (java.io.EOFException e) {

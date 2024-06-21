@@ -41,7 +41,7 @@ public class Processor {
         String operation = parts[0].toUpperCase();
 
         switch(operation) {
-            case "GET_QUANTITY":
+            case "GET_AMOUNT":
                 int quantity = productService.getProduct(Integer.parseInt(parts[1])).getAmount();
                 return "Quantity of product " + parts[1] + ": " + quantity;
             case "DEDUCT_AMOUNT":
@@ -55,7 +55,7 @@ public class Processor {
                 int updAmount = addProduct.getAmount() + Integer.parseInt(parts[2]);
                 addProduct.setAmount(updAmount);
                 productService.updateProduct(addProduct);
-                return "Amount deducted. New amount of product " + parts[1] + ": " + updAmount;
+                return "Amount added. New amount of product " + parts[1] + ": " + updAmount;
             case "ADD_GROUP":
                 // Add group logic here
                 return "Group added";
@@ -79,7 +79,6 @@ public class Processor {
             try {
                 Packet resPacket = new Packet((byte) 0x13, (byte) bUserID, System.currentTimeMillis(), resMsg.getMessage().length, resMsg.getMessage());
                 byte[] packetBytes = sender.getPacketHandler().constructPacketBytes(resPacket);
-                System.out.println("Sending response packet: " + Arrays.toString(packetBytes));
                 sender.sendMessageTCP(packetBytes, out);
             } catch (Exception e) {
                 System.err.println("Error in Processor's handleResponse!");

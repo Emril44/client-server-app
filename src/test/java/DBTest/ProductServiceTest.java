@@ -22,18 +22,18 @@ public class ProductServiceTest {
         productService = new ProductService();
     }
 
-    @AfterEach
-    public void tearDown() throws SQLException {
-        clearDatabase();
-    }
-
-    private void clearDatabase() throws SQLException {
-        try (Connection con = DBConnection.getConnection();
-             Statement stmt = con.createStatement()) {
-            stmt.execute("DELETE FROM products");
-            stmt.execute("DELETE FROM sqlite_sequence WHERE name='products'"); // Reset AUTOINCREMENT
-        }
-    }
+//    @AfterEach
+//    public void tearDown() throws SQLException {
+//        clearDatabase();
+//    }
+//
+//    private void clearDatabase() throws SQLException {
+//        try (Connection con = DBConnection.getConnection();
+//             Statement stmt = con.createStatement()) {
+//            stmt.execute("DELETE FROM products");
+//            stmt.execute("DELETE FROM sqlite_sequence WHERE name='products'"); // Reset AUTOINCREMENT
+//        }
+//    }
 
     @Test
     public void testCreateAndReadProduct() throws SQLException {
