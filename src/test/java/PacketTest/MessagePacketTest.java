@@ -12,7 +12,7 @@ public class MessagePacketTest {
 
     @Test
     public void testMsgCipher() throws Exception {
-        byte[] key = "1028564026592835".getBytes();
+        byte[] key = "1234567812345678".getBytes();
         MessageHandler messageHandler = new MessageHandler(key);
 
         Message msg = new Message(1, 402, "I like trains".getBytes(), false);
@@ -27,7 +27,7 @@ public class MessagePacketTest {
 
     @Test
     public void testPacketOps() throws Exception {
-        byte[] key = "1028564026592835".getBytes();
+        byte[] key = "1234567812345678".getBytes();
         MessageHandler messageHandler = new MessageHandler(key);
         PacketHandler packetHandler = new PacketHandler(messageHandler);
 
@@ -44,7 +44,7 @@ public class MessagePacketTest {
         assertEquals(origPacket1.getbMagic(), parsedPacket.getbMagic());
         assertEquals(origPacket1.getbSrc(), parsedPacket.getbSrc());
         assertEquals(origPacket1.getbPktId(), parsedPacket.getbPktId());
-        assertEquals(origPacket.getmLen(), parsedPacket.getmLen());
-        assertArrayEquals(origPacket.getMessage(), parsedPacket.getMessage());
+        assertEquals(origPacket1.getmLen(), parsedPacket.getmLen());
+        assertArrayEquals(origPacket1.getMessage(), parsedPacket.getMessage());
     }
 }

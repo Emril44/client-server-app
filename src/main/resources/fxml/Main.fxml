@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+ <VBox alignment="CENTER" spacing="10.0" xmlns:fx="javafx.com/fxml" fx:controller="org.example.frontend.controllers.MainController">
+    <Label text="PINGAS"/>
+    <Button text="Get produceucue" onAction="#handleGetProducts"/>
+    <Button text="Exit" onAction="#handleExit"/>
+</VBox>

@@ -20,7 +20,7 @@ public class MessageHandler {
     }
 
     public byte[] toBytes(Message message) {
-        ByteBuffer buffer = ByteBuffer.allocate(8 + message.getMessage().length);
+        ByteBuffer buffer = ByteBuffer.allocate(9 + message.getMessage().length);
         buffer.putInt(message.getcType());
         buffer.putInt(message.getbUserId());
         buffer.put((byte) (message.isUDP() ? 1 : 0));
