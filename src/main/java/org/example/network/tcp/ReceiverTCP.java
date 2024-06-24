@@ -36,7 +36,8 @@ public class ReceiverTCP implements Receiver {
                 try {
                     byte[] packetBytes = (byte[]) in.readObject();
                     Packet packet = packetHandler.parsePacket(packetBytes, decryptUtil.getKey());
-                    processor.process(new Message(packet.getbMagic(), packet.getbSrc(), packet.getMessage()), out);
+                    Message message = new Message(packet.getbMagic(), packet.getbSrc(), packet.getMessage(), false);
+                    processor.process(message, out, null, 0);
                 } catch (java.io.EOFException e) {
                     System.out.println("Client disconnected");
                     break; // Exit the loop on client disconnect

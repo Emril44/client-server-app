@@ -15,7 +15,7 @@ public class MessagePacketTest {
         byte[] key = "1028564026592835".getBytes();
         MessageHandler messageHandler = new MessageHandler(key);
 
-        Message msg = new Message(1, 402, "I like trains".getBytes());
+        Message msg = new Message(1, 402, "I like trains".getBytes(), false);
 
         byte[] encryptedMsg = messageHandler.encryptMessage(msg);
         Message decryptedMsg = messageHandler.decryptMessage(encryptedMsg);
@@ -31,7 +31,7 @@ public class MessagePacketTest {
         MessageHandler messageHandler = new MessageHandler(key);
         PacketHandler packetHandler = new PacketHandler(messageHandler);
 
-        Message message = new Message(1, 402, "I like trains".getBytes());
+        Message message = new Message(1, 402, "I like trains".getBytes(), false);
         byte[] encryptedMsg = messageHandler.encryptMessage(message);
 
         byte[] msgBytes = messageHandler.toBytes(message);

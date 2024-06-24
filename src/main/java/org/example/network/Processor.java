@@ -7,7 +7,7 @@ import org.example.services.ProductService;
 import org.example.utils.EncryptUtil;
 
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
+import java.net.InetAddress;
 
 public class Processor {
     private final EncryptUtil encryptor;
@@ -20,7 +20,7 @@ public class Processor {
         this.productService = new ProductService();
     }
 
-    public void process(Message message, ObjectOutputStream out) {
+    public void process(Message message, ObjectOutputStream out, InetAddress address, int port) {
         // process message
         String command = new String(message.getMessage());
         System.out.println("Processing command: " + command);
@@ -33,7 +33,7 @@ public class Processor {
             response = "Error " + e.getMessage();
         }
 
-        handleResponse(response, message.getbUserId(), out);
+        handleResponse(response, message, out, address, port);
     }
 
     private String handleCommand(String command) throws Exception {
@@ -72,14 +72,21 @@ public class Processor {
         }
     }
 
-    private void handleResponse(String res, int bUserID, ObjectOutputStream out) {
-        Message resMsg = new Message(1, bUserID, res.getBytes());
-
+    private void handleResponse(String res, Message message, ObjectOutputStream out, InetAddress address, int port) {
         new Thread(() -> {
             try {
-                Packet resPacket = new Packet((byte) 0x13, (byte) bUserID, System.currentTimeMillis(), resMsg.getMessage().length, resMsg.getMessage());
-                byte[] packetBytes = sender.getPacketHandler().constructPacketBytes(resPacket);
-                sender.sendMessageTCP(packetBytes, out);
+                if(message.isUDP()) {
+                    String udpRes = new String("acknowledged;" + res);
+                    Message resMsgUDP = new Message(1, message.getbUserId(), udpRes.getBytes(), message.isUDP());
+                    Packet resPacketUDP = new Packet((byte) 0x13, (byte) message.getbUserId(), System.currentTimeMillis(), resMsgUDP.getMessage().length, resMsgUDP.getMessage());
+                    byte[] packetBytesUDP = sender.getPacketHandler().constructPacketBytes(resPacketUDP);
+                    sender.sendMessageUDP(packetBytesUDP, address, port);
+                } else {
+                    Message resMsg = new Message(1, message.getbUserId(), res.getBytes(), message.isUDP());
+                    Packet resPacket = new Packet((byte) 0x13, (byte) message.getbUserId(), System.currentTimeMillis(), resMsg.getMessage().length, resMsg.getMessage());
+                    byte[] packetBytes = sender.getPacketHandler().constructPacketBytes(resPacket);
+                    sender.sendMessageTCP(packetBytes, out);
+                }
             } catch (Exception e) {
                 System.err.println("Error in Processor's handleResponse!");
             }

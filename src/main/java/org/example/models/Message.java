@@ -9,14 +9,16 @@ package org.example.models;
     08	    wLen-8  message	    корисна інформація, можна покласти JSON як масив байтів big-endian
 */
 public class Message {
-    public final int cType;
-    public final int bUserId;
-    public final byte[] message;
+    private final int cType;
+    private final int bUserId;
+    private final byte[] message;
+    private boolean isUDP;
 
-    public Message(int cType, int bUserID, byte[] payload) {
+    public Message(int cType, int bUserID, byte[] payload, boolean isUDP) {
         this.message = payload;
         this.cType = cType;
         this.bUserId = bUserID;
+        this.isUDP = isUDP;
     }
 
     public int getbUserId() {
@@ -27,5 +29,9 @@ public class Message {
     }
     public byte[] getMessage() {
         return message;
+    }
+
+    public boolean isUDP() {
+        return isUDP;
     }
 }

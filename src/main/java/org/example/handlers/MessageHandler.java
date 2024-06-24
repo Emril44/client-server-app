@@ -23,6 +23,7 @@ public class MessageHandler {
         ByteBuffer buffer = ByteBuffer.allocate(8 + message.getMessage().length);
         buffer.putInt(message.getcType());
         buffer.putInt(message.getbUserId());
+        buffer.put((byte) (message.isUDP() ? 1 : 0));
         buffer.put(message.getMessage());
         return buffer.array();
     }
@@ -32,8 +33,9 @@ public class MessageHandler {
         ByteBuffer buffer = ByteBuffer.wrap(decryptedMsg);
         int cType = buffer.getInt();
         int bUserId = buffer.getInt();
-        byte[] msgContents = new byte[decryptedMsg.length - 8];
+        boolean isUDP = buffer.get() == 1;
+        byte[] msgContents = new byte[decryptedMsg.length - 9];
         buffer.get(msgContents);
-        return new Message(cType, bUserId, msgContents);
+        return new Message(cType, bUserId, msgContents, isUDP);
     }
 }

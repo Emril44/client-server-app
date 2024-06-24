@@ -14,7 +14,7 @@ public class StoreClientUDP {
     private InetAddress address;
     private PacketHandler packetHandler;
     private long pktId = 0;
-    private final int timeout = 2000;
+    private final int timeout = 5000;
     private final int maxRetries = 3;
 
     public StoreClientUDP(String hostname, byte[] key) throws Exception {
@@ -33,9 +33,10 @@ public class StoreClientUDP {
         int retries = 0;
         boolean ack = false;
         while(retries < maxRetries && !ack) {
+            System.out.println("Sending packet " + req);
             socket.send(datagramPacket);
 
-            socket.setSoTimeout(timeout);
+            //socket.setSoTimeout(timeout);
             try {
                 byte[] buffer = new byte[256];
                 DatagramPacket resPacket = new DatagramPacket(buffer, buffer.length);
@@ -43,13 +44,15 @@ public class StoreClientUDP {
 
                 Packet res = packetHandler.parsePacket(resPacket.getData(), "1234567812345678".getBytes());
                 String resMsg = new String(res.getMessage());
-                if(resMsg.equals("acknowledged")) {
+                System.out.println("Received response " + resMsg);
+                String[] resParts = resMsg.split(";");
+                if(resParts[0].equals("acknowledged")) {
                     ack = true;
-                    System.out.println("Packet acknowledged by server");
                 }
             } catch (SocketTimeoutException e) {
                 retries++;
                 System.err.println("[" + retries + " OF " + maxRetries + "] No acknowledgement, retrying...");
+                e.printStackTrace();
             }
         }
 
@@ -60,6 +63,9 @@ public class StoreClientUDP {
 
     public static void main(String[] args) throws Exception {
         StoreClientUDP client = new StoreClientUDP("localhost", "1234567812345678".getBytes());
-        client.sendRequest("HI SERVER :DDDD");
+        client.sendRequest("GET_AMOUNT:1");
+        client.sendRequest("DEDUCT_AMOUNT:1:10");
+        client.sendRequest("ADD_AMOUNT:1:5");
+        client.sendRequest("SET_PRICE:1:49.99");
     }
 }

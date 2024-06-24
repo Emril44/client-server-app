@@ -44,7 +44,7 @@ public class StoreClientTCP {
                 // Keep communicating with the server
                 for (int i = 0; i < comNum; i++) {
                     try {
-                        Thread.sleep(3000); // Wait before sending the next message
+                        Thread.sleep(1500); // Wait before sending the next message
                         communicateWithServer(out, in, "GET_AMOUNT:1");
                     } catch (IOException | ClassNotFoundException e) {
                         System.out.println("Connection lost. Attempting to reconnect...");

@@ -2,7 +2,11 @@ package org.example.network.udp;
 
 import org.example.handlers.MessageHandler;
 import org.example.handlers.PacketHandler;
+import org.example.models.Message;
 import org.example.models.Packet;
+import org.example.network.Processor;
+import org.example.network.Sender;
+import org.example.utils.EncryptUtil;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,12 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StoreServerUDP {
     private DatagramSocket socket;
     private PacketHandler packetHandler;
-    private AtomicBoolean running = new AtomicBoolean(true);
+    private Processor processor;
 
-    public StoreServerUDP(int port, byte[] key) throws Exception {
+    public StoreServerUDP(int port, byte[] key, Processor processor) throws Exception {
         socket = new DatagramSocket(port);
         MessageHandler messageHandler = new MessageHandler(key);
         packetHandler = new PacketHandler(messageHandler);
+        this.processor = processor;
     }
 
     public void start() {
@@ -28,14 +33,13 @@ public class StoreServerUDP {
                 socket.receive(packet);
                 byte[] data = packet.getData();
                 Packet receivedPacket = packetHandler.parsePacket(data, "1234567812345678".getBytes());
-                System.out.println("Received: " + new String(receivedPacket.getMessage()));
+                String receivedMessage = new String(receivedPacket.getMessage());
+                System.out.println("Received: " + receivedMessage);
+
+                Message message = new Message(receivedPacket.getbMagic(), receivedPacket.getbSrc(), receivedMessage.getBytes(), true);
 
                 // response
-                byte[] message = "acknowledged".getBytes();
-                Packet responsePacket = new Packet((byte) 0x13, (byte) 1, receivedPacket.getbPktId() + 1, message.length, message);
-                byte[] resData = packetHandler.constructPacketBytes(responsePacket);
-                DatagramPacket res = new DatagramPacket(resData, resData.length, packet.getAddress(), packet.getPort());
-                socket.send(res);
+                processor.process(message, null, packet.getAddress(), packet.getPort());
             } catch (Exception e) {
                 System.err.println("in StoreServerUDP!");
                 e.printStackTrace();
@@ -44,7 +48,11 @@ public class StoreServerUDP {
     }
 
     public static void main(String[] args) throws Exception {
-        StoreServerUDP server = new StoreServerUDP(2078, "1234567812345678".getBytes());
+        EncryptUtil encryptUtil = new EncryptUtil("1234567812345678".getBytes());
+        PacketHandler packetHandler = new PacketHandler(new MessageHandler("1234567812345678".getBytes()));
+        Sender sender = new Sender(packetHandler);
+        Processor processor = new Processor(encryptUtil, sender);
+        StoreServerUDP server = new StoreServerUDP(2078, "1234567812345678".getBytes(), processor);
         server.start();
         System.out.println("UDP server up on port 2078");
     }
