@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" minHeight="400" minWidth="600" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea" fx:controller="org.example.frontend.controllers.ProductStorageController">
+    <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="STORAGE" />
+
+    <HBox alignment="CENTER" spacing="10.0">
+        <Button onAction="#handleAddNewGroup" text="Add New Group" textAlignment="CENTER" />
+        <Button onAction="#handleEditSelectedGroup" text="Edit Selected Group" textAlignment="CENTER" />
+        <Button onAction="#handleRemoveSelectedGroup" text="Remove Selected Group" textAlignment="CENTER" />
+    </HBox>
+
+    <HBox alignment="CENTER" spacing="10.0">
+        <ComboBox fx:id="groupComboBox" promptText="Select a Group" />
+        <Button onAction="#handleBrowseGroupProducts" text="Browse Group Products" textAlignment="CENTER" />
+    </HBox>
+
+    <HBox alignment="CENTER" spacing="10.0">
+        <Button onAction="#handleListAllProducts" text="List All Products" textAlignment="CENTER" />
+        <Button onAction="#handleListTotalProductCost" text="List Total Product Cost" textAlignment="CENTER" />
+    </HBox>
+</VBox>

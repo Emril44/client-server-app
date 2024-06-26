@@ -3,8 +3,11 @@ package org.example.frontend;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.example.frontend.controllers.MainController;
 
 import java.net.URL;
 import java.util.Enumeration;
@@ -13,25 +16,15 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        System.out.println("Runtime Classpath:");
-        Enumeration<URL> resources = getClass().getClassLoader().getResources("");
-        while (resources.hasMoreElements()) {
-            System.out.println(resources.nextElement());
-        }
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Main.fxml"));
+        StackPane root = loader.load();
 
-        URL resource = getClass().getClassLoader().getResource("fxml/Main.fxml");
-        if (resource == null) {
-            System.out.println("Resource not found");
-            throw new RuntimeException("FXML file not found");
-        } else {
-            System.out.println("Resource found: " + resource);
-        }
+        MainController controller = loader.getController();
+        controller.setOwner(primaryStage); // Pass the main window to the controller
 
-        FXMLLoader loader = new FXMLLoader(resource);
-        VBox root = loader.load();
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, 800, 600);
 
-        primaryStage.setTitle("JavaFX Application");
+        primaryStage.setTitle("Storage App");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
- <VBox alignment="CENTER" spacing="10.0" xmlns:fx="javafx.com/fxml" fx:controller="org.example.frontend.controllers.MainController">
-    <Label text="PINGAS"/>
-    <Button text="Get produceucue" onAction="#handleGetProducts"/>
-    <Button text="Exit" onAction="#handleExit"/>
-</VBox>
+<StackPane xmlns:fx="http://javafx.com/fxml" fx:controller="org.example.frontend.controllers.MainController" fx:id="stackPane">
+    <BorderPane fx:id="mainPane">
+        <center>
+            <VBox fx:id="welcomeVBox" alignment="CENTER" spacing="20.0">
+                <Label text="Welcome!" style="-fx-font-size: 24px;" />
+                <Label text="This program operates a Storage system, utilizing files and directories." />
+            </VBox>
+        </center>
+        <bottom>
+            <HBox fx:id="mainMenuHBox" alignment="CENTER" spacing="10.0" style="-fx-padding: 10px;">
+                <Button text="Product Storage" onAction="#handleOpenProductStorage" />
+                <Button text="Product Output" onAction="#handleProductOutput" />
+                <Button text="Product Search" onAction="#handleProductSearch" />
+            </HBox>
+        </bottom>
+    </BorderPane>
+</StackPane>
