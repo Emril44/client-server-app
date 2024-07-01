@@ -57,11 +57,15 @@ public class Processor {
                 productService.updateProduct(addProduct);
                 return "Amount added. New amount of product " + parts[1] + ": " + updAmount;
             case "ADD_GROUP":
-                // Add group logic here
-                return "Group added";
+                String groupName = parts[1];
+                String groupDesc = parts[2];
+                productService.createGroup(groupName, groupDesc);
+                return "Group added: " + groupName;
             case "ADD_PRODUCT_TO_GROUP":
-                // Add product to group logic here
-                return "Product added to group";
+                int productID = Integer.parseInt(parts[1]);
+                int groupID = Integer.parseInt(parts[2]);
+                productService.assignProductToGroup(productID, groupID);
+                return "Product " + productID + " added to group " + groupID;
             case "SET_PRICE":
                 Product priceProduct = productService.getProduct(Integer.parseInt(parts[1]));
                 priceProduct.setPrice(Double.parseDouble(parts[2]));

@@ -50,13 +50,13 @@ public class ProductSearchController {
     private ObservableList<Product> getProductData() {
         // Replace with actual data fetching logic
         return FXCollections.observableArrayList(
-                new Product(1, "Milk", "Milky", "bueubf",5, 12),
-                new Product(2, "Ice Cream", "Bear", "8", 15, 120),
-                new Product(3, "Cayenne Pepper", "Spic", "13", 5, 65),
-                new Product(4, "Dove", "Dove", "2", 2, 4),
-                new Product(5, "A4", "White", "100", 1, 100),
-                new Product(6, "Skirt", "Zara", "15", 30, 450),
-                new Product(7, "Sneakers", "Zara", "10", 50, 500)
+                new Product(1, "Milk", "Milky", "bueubf",5, 12, 1),
+                new Product(2, "Ice Cream", "Bear", "8", 15, 120, 1),
+                new Product(3, "Cayenne Pepper", "Spic", "13", 5, 65, 1),
+                new Product(4, "Dove", "Dove", "2", 2, 4, 1),
+                new Product(5, "A4", "White", "100", 1, 100, 1),
+                new Product(6, "Skirt", "Zara", "15", 30, 450, 1),
+                new Product(7, "Sneakers", "Zara", "10", 50, 500, 1)
         );
     }
 

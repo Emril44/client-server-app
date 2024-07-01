@@ -31,13 +31,23 @@ public class ProductServiceTest {
         try (Connection con = DBConnection.getConnection();
              Statement stmt = con.createStatement()) {
             stmt.execute("DELETE FROM products");
+            stmt.execute("DELETE FROM product_groups");
             stmt.execute("DELETE FROM sqlite_sequence WHERE name='products'"); // Reset AUTOINCREMENT
+            stmt.execute("DELETE FROM sqlite_sequence WHERE name='product_groups'"); // Reset AUTOINCREMENT
+        }
+    }
+
+    private void createProductGroup(String name, String description) throws SQLException {
+        try (Connection con = DBConnection.getConnection();
+             Statement stmt = con.createStatement()) {
+            stmt.execute(String.format("INSERT INTO product_groups (name, description) VALUES ('%s', '%s')", name, description));
         }
     }
 
     @Test
     public void testCreateAndReadProduct() throws SQLException {
-        Product product = new Product(0, "Test Product", "Test Description", "Test Producer", 100, 99.99);
+        createProductGroup("Groceries", "Daily grocery items");
+        Product product = new Product(0, "Test Product", "Test Description", "Test Producer", 100, 99.99, 1);
         productService.createProduct(product);
 
         List<Product> products = productService.listProducts("name", "Test Product");
@@ -47,7 +57,8 @@ public class ProductServiceTest {
 
     @Test
     public void testUpdateProduct() throws SQLException {
-        Product product = new Product(0, "Test Product", "Test Description", "Test Producer", 100, 99.99);
+        createProductGroup("Groceries", "Daily grocery items");
+        Product product = new Product(0, "Test Product", "Test Description", "Test Producer", 100, 99.99, 1);
         productService.createProduct(product);
 
         List<Product> products = productService.listProducts("name", "Test Product");
@@ -62,7 +73,8 @@ public class ProductServiceTest {
 
     @Test
     public void testDeleteProduct() throws SQLException {
-        Product product = new Product(0, "Test Product", "Test Description", "Test Producer", 100, 99.99);
+        createProductGroup("Groceries", "Daily grocery items");
+        Product product = new Product(0, "Test Product", "Test Description", "Test Producer", 100, 99.99, 1);
         productService.createProduct(product);
 
         List<Product> products = productService.listProducts("name", "Test Product");
@@ -75,8 +87,11 @@ public class ProductServiceTest {
 
     @Test
     public void testListProductsByCriteria() throws SQLException {
-        productService.createProduct(new Product(0, "Product One", "Description One", "Producer One", 100, 50.0));
-        productService.createProduct(new Product(0, "Product Two", "Description Two", "Producer Two", 200, 75.0));
+        createProductGroup("Groceries", "Daily grocery items");
+        createProductGroup("Beverages", "Drinks and beverages");
+
+        productService.createProduct(new Product(0, "Product One", "Description One", "Producer One", 100, 50.0, 1));
+        productService.createProduct(new Product(0, "Product Two", "Description Two", "Producer Two", 200, 75.0, 2));
 
         List<Product> productsByName = productService.listProducts("name", "Product");
         assertEquals(2, productsByName.size());

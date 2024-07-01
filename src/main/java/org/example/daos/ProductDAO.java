@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ProductDAO {
     public void createProduct(Product product) throws SQLException {
-        String query = "INSERT INTO products (name, description, producer, amount, price) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO products (name, description, producer, amount, price, group_id) VALUES (?, ?, ?, ?, ?, ?)";
         try(Connection con = DBConnection.getConnection();
             PreparedStatement statement = con.prepareStatement(query)) {
             statement.setString(1, product.getName());
@@ -20,6 +20,7 @@ public class ProductDAO {
             statement.setString(3, product.getProducer());
             statement.setInt(4, product.getAmount());
             statement.setDouble(5, product.getPrice());
+            statement.setInt(6, product.getGroupID());
             statement.executeUpdate();
         }
     }
@@ -37,7 +38,8 @@ public class ProductDAO {
                         res.getString("description"),
                         res.getString("producer"),
                         res.getInt("amount"),
-                        res.getDouble("price")
+                        res.getDouble("price"),
+                        res.getInt("group_id")
                         );
             }
         }
@@ -68,6 +70,26 @@ public class ProductDAO {
         }
     }
 
+    public void createGroup(String name, String description) throws SQLException {
+        String query = "INSERT INTO product_groups (name, description) VALUES (?, ?)";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement statement = con.prepareStatement(query)) {
+            statement.setString(1, name);
+            statement.setString(2, description);
+            statement.executeUpdate();
+        }
+    }
+
+    public void assignProductToGroup(int productID, int groupID) throws SQLException {
+        String query = "UPDATE products SET group_id = ? WHERE id = ?";
+        try(Connection con = DBConnection.getConnection();
+        PreparedStatement statement = con.prepareStatement(query)) {
+            statement.setInt(1, groupID);
+            statement.setInt(2, productID);
+            statement.executeUpdate();
+        }
+    }
+
     public List<Product> listProductsByCriteria(String criteria, String searchQuery) throws SQLException {
         String query;
         List<Product> products = new ArrayList<>();
@@ -94,7 +116,8 @@ public class ProductDAO {
                         res.getString("description"),
                         res.getString("producer"),
                         res.getInt("amount"),
-                        res.getDouble("price")));
+                        res.getDouble("price"),
+                        res.getInt("group_id")));
             }
         }
         return products;

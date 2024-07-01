@@ -25,6 +25,14 @@ public class ProductService {
         productDAO.deleteProduct(id);
     }
 
+    public void createGroup(String name, String description) throws SQLException {
+        productDAO.createGroup(name, description);
+    }
+
+    public void assignProductToGroup(int productID, int groupID) throws SQLException {
+        productDAO.assignProductToGroup(productID, groupID);
+    }
+
     public List<Product> listProducts(String criteria, String query) throws SQLException {
         return productDAO.listProductsByCriteria(criteria, query);
     }

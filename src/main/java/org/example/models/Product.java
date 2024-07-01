@@ -1,20 +1,22 @@
 package org.example.models;
 
 public class Product {
-    private int id;
+    private final int id;
     private String name;
     private String description;
     private String producer;
     private int amount;
     private double price;
+    private int groupID;
 
-    public Product(int id, String name, String description, String producer, int amount, double price) {
+    public Product(int id, String name, String description, String producer, int amount, double price, int groupID) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.producer = producer;
         this.amount = amount;
         this.price = price;
+        this.groupID = groupID;
     }
 
     public int getId() {
@@ -39,6 +41,10 @@ public class Product {
         return this.price;
     }
 
+    public int getGroupID() {
+        return groupID;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -57,6 +63,10 @@ public class Product {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
     }
 
     public String toString(){

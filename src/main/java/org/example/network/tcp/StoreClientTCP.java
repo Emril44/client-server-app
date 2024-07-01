@@ -39,6 +39,7 @@ public class StoreClientTCP {
                 communicateWithServer(out, in, "DEDUCT_AMOUNT:1:10");
                 communicateWithServer(out, in, "ADD_AMOUNT:1:5");
                 communicateWithServer(out, in, "SET_PRICE:1:49.99");
+                communicateWithServer(out, in, "ADD_GROUP:Delhi:Meaaaaaaaaaat");
 
                 int comNum = 5;
                 // Keep communicating with the server
