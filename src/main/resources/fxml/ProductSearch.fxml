@@ -8,21 +8,26 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="org.example.frontend.controllers.ProductSearchController" spacing="10" alignment="CENTER" style="-fx-padding: 10;">
-    <HBox spacing="10" alignment="CENTER">
-        <Label text="Search Products:" />
-        <TextField fx:id="searchField" promptText="Enter product name or producer" />
-        <Button text="Search" onAction="#handleSearch" />
-    </HBox>
-    <TableView fx:id="searchResultTable" prefWidth="600">
-        <columns>
-            <TableColumn fx:id="groupColumn" text="Product Group" />
-            <TableColumn fx:id="nameColumn" text="Product Name" />
-            <TableColumn fx:id="producerColumn" text="Product Producer" />
-            <TableColumn fx:id="amountColumn" text="Product Amount" />
-            <TableColumn fx:id="costPerUnitColumn" text="Cost Per Unit" />
-            <TableColumn fx:id="totalCostColumn" text="Total Cost" />
-        </columns>
-    </TableView>
+<?import javafx.scene.control.ComboBox?>
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frontend.controllers.ProductSearchController">
+    <VBox spacing="10" alignment="CENTER">
+        <HBox spacing="10" alignment="CENTER">
+            <Label text="Search Products:"/>
+            <TextField fx:id="searchField" promptText="Enter product data"/>
+            <ComboBox fx:id="criteriaChoiceBox"/>
+            <Button text="Search" onAction="#searchProducts"/>
+        </HBox>
+        <TableView fx:id="productTable">
+            <columns>
+                <TableColumn text="Product Group" fx:id="groupColumn"/>
+                <TableColumn text="Product Name" fx:id="nameColumn"/>
+                <TableColumn text="Product Description" fx:id="descColumn"/>
+                <TableColumn text="Product Producer" fx:id="producerColumn"/>
+                <TableColumn text="Product Amount" fx:id="amountColumn"/>
+                <TableColumn text="Cost Per Unit" fx:id="priceColumn"/>
+                <TableColumn text="Total Cost" fx:id="totalColumn"/>
+            </columns>
+        </TableView>
+    </VBox>
 </VBox>
 

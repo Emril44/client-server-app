@@ -5,12 +5,18 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Window;
+import org.example.network.tcp.StoreClientTCP;
 
 public class ProductStorageController {
     @FXML
     private ComboBox<String> groupComboBox;
 
     private Window owner;
+    private StoreClientTCP clientTCP;
+
+    public void setClient(StoreClientTCP clientTCP) {
+        this.clientTCP = clientTCP;
+    }
 
     @FXML
     private void initialize() {

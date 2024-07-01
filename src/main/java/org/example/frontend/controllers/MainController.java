@@ -13,8 +13,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import org.example.network.tcp.StoreClientTCP;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 
 public class MainController {
@@ -27,39 +29,51 @@ public class MainController {
     @FXML
     private HBox mainMenuHBox;
     private Window owner;
+    private StoreClientTCP clientTCP;
 
     @FXML
-    private void handleOpenProductStorage() {
-        loadView("/fxml/ProductStorage.fxml");
+    private void initialize() {
+        try {
+            clientTCP = new StoreClientTCP();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
-    private void handleProductOutput() {
-        loadView("/fxml/ProductOutput.fxml");
+    private void handleOpenProductStorage() {
+        loadView("/fxml/ProductStorage.fxml", controller -> {
+            if(controller instanceof ProductStorageController) {
+                ((ProductStorageController) controller).setClient(clientTCP);
+            }
+        });
     }
 
     @FXML
     private void handleProductSearch() {
-        loadView("/fxml/ProductSearch.fxml");
+        loadView("/fxml/ProductSearch.fxml", controller -> {
+            if(controller instanceof ProductSearchController) {
+                ((ProductSearchController) controller).setClient(clientTCP);
+            }
+        });
     }
 
     public void setOwner(Window owner) {
         this.owner = owner;
     }
 
-    private void loadView(String fxmlPath) {
+    private void loadView(String fxmlPath, Consumer<Object> controllerConsumer) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
-
             Object controller = loader.getController();
 
             if(controller instanceof ProductStorageController) {
                 ((ProductStorageController) controller).setOwner(owner);
-            } else if(controller instanceof ProductOutputController) {
-                ((ProductOutputController) controller).setOwner(owner);
+                controllerConsumer.accept(controller);
             } else if(controller instanceof ProductSearchController) {
                 ((ProductSearchController) controller).setOwner(owner);
+                controllerConsumer.accept(controller);
             }
 
             // Hide main menu components and show the new view

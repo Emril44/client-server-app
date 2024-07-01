@@ -18,14 +18,12 @@ public class ReceiverTCP implements Receiver {
     private final Processor processor;
     private final Socket clientSocket;
     private final PacketHandler packetHandler;
-    private final Sender sender;
 
     public ReceiverTCP(Socket clientSocket, DecryptUtil decryptUtil, Processor processor, PacketHandler packetHandler, Sender sender) {
         this.clientSocket = clientSocket;
         this.decryptUtil = decryptUtil;
         this.processor = processor;
         this.packetHandler = packetHandler;
-        this.sender = sender;
     }
 
     @Override

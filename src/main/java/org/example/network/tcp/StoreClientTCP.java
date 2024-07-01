@@ -16,47 +16,26 @@ public class StoreClientTCP {
 
     private static PacketHandler packetHandler;
     private static byte[] key = "1234567812345678".getBytes();
+    private Socket socket;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
 
-    public static void main(String[] args) {
+    public StoreClientTCP() {
         packetHandler = new PacketHandler(new MessageHandler(key));
-        connectAndCommunicate();
+        connect();
     }
 
-    public static void connectAndCommunicate() {
+    public void connect() {
         boolean connected = false;
         int attempt = 0;
 
         while (!connected && attempt < MAX_RETRY_ATTEMPTS) {
-            try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
-
+            try {
+                socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+                out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(socket.getInputStream());
                 connected = true;
                 System.out.println("CLIENT Connected to the server.");
-
-                // Initial communication with server
-                communicateWithServer(out, in, "GET_AMOUNT:1");
-                communicateWithServer(out, in, "DEDUCT_AMOUNT:1:10");
-                communicateWithServer(out, in, "ADD_AMOUNT:1:5");
-                communicateWithServer(out, in, "SET_PRICE:1:49.99");
-                communicateWithServer(out, in, "ADD_GROUP:Delhi:Meaaaaaaaaaat");
-
-                int comNum = 5;
-                // Keep communicating with the server
-                for (int i = 0; i < comNum; i++) {
-                    try {
-                        Thread.sleep(1500); // Wait before sending the next message
-                        communicateWithServer(out, in, "GET_AMOUNT:1");
-                    } catch (IOException | ClassNotFoundException e) {
-                        System.out.println("Connection lost. Attempting to reconnect...");
-                        connected = false; // Exit inner loop to reconnect
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        System.out.println("Retry interrupted.");
-                        connected = false;
-                        break;
-                    }
-                }
             } catch (Exception e) {
                 attempt++;
                 System.out.println("Failed to connect. Retrying to connect... (Attempt " + attempt + ")");
@@ -75,7 +54,7 @@ public class StoreClientTCP {
         }
     }
 
-    private static void communicateWithServer(ObjectOutputStream out, ObjectInputStream in, String message) throws Exception {
+    public String communicateWithServer(String message) throws Exception {
         byte[] msg = message.getBytes();
         Packet packet = new Packet((byte) 0x13, (byte) 1, 1, msg.length, msg);
         byte[] data = packetHandler.constructPacketBytes(packet);
@@ -85,11 +64,24 @@ public class StoreClientTCP {
         try {
             byte[] resData = (byte[]) in.readObject();
             Packet resPacket = packetHandler.parsePacket(resData, key);
-            System.out.println("Server response: " + new String(resPacket.getMessage()));
+            String response = new String(resPacket.getMessage());
+            System.out.println("Server response: " + response);
+            return response;
         } catch (Exception e) {
             System.err.println("Error in client receiving or processing packet!");
             e.printStackTrace();
             throw e; // Rethrow exception to handle reconnection logic
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            if(socket != null) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            System.err.println("Error closing socket!");
+            e.printStackTrace();
         }
     }
 }

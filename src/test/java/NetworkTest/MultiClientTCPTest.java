@@ -38,7 +38,7 @@ public class MultiClientTCPTest {
             final int clientId = i;
             executorService.submit(() -> {
                 try {
-                    StoreClientTCP.main(null);
+                    new StoreClientTCP();
                 } catch (Exception e) {
                     System.err.println("Error starting TCP client " + clientId + " in JUnit test!");
                     e.printStackTrace();

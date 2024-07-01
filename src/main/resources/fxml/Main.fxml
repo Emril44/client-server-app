@@ -14,8 +14,7 @@
         <bottom>
             <HBox fx:id="mainMenuHBox" alignment="CENTER" spacing="10.0" style="-fx-padding: 10px;">
                 <Button text="Product Storage" onAction="#handleOpenProductStorage" />
-                <Button text="Product Output" onAction="#handleProductOutput" />
-                <Button text="Product Search" onAction="#handleProductSearch" />
+                <Button text="Product Output &amp; Search" onAction="#handleProductSearch" />
             </HBox>
         </bottom>
     </BorderPane>

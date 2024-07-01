@@ -1,20 +1,35 @@
 package org.example.frontend.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Window;
 import org.example.models.Product;
+import org.example.network.tcp.StoreClientTCP;
+import org.example.services.ProductService;
+
+import java.lang.reflect.Type;
+import java.sql.SQLException;
+import java.util.List;
 
 public class ProductSearchController {
     @FXML
+    public ComboBox<String> criteriaChoiceBox;
+    @FXML
+    public TableColumn<Product, String> descColumn;
+    @FXML
     private TextField searchField;
     @FXML
-    private TableView<Product> searchResultTable;
+    private TableView<Product> productTable;
     @FXML
     private TableColumn<Product, String> groupColumn;
     @FXML
@@ -24,9 +39,12 @@ public class ProductSearchController {
     @FXML
     private TableColumn<Product, Integer> amountColumn;
     @FXML
-    private TableColumn<Product, Double> costPerUnitColumn;
+    private TableColumn<Product, Double> priceColumn;
     @FXML
-    private TableColumn<Product, Double> totalCostColumn;
+    private TableColumn<Product, Double> totalColumn;
+
+    private StoreClientTCP clientTCP;
+    private ProductService productService = new ProductService();
 
     private Window owner;
 
@@ -34,47 +52,62 @@ public class ProductSearchController {
         this.owner = owner;
     }
 
+    public void setClient(StoreClientTCP clientTCP) {
+        this.clientTCP = clientTCP;
+        loadAllProducts();
+    }
+
     @FXML
     public void initialize() {
-        groupColumn.setCellValueFactory(new PropertyValueFactory<>("group"));
+        groupColumn.setCellValueFactory(cellData -> {
+                Product product = cellData.getValue();
+                try {
+                    String groupName = productService.getGroupName(product.getGroupID());
+                    return new SimpleStringProperty(groupName);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    return new SimpleStringProperty("Unknown");
+                }
+        });
+
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        descColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         producerColumn.setCellValueFactory(new PropertyValueFactory<>("producer"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        costPerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("costPerUnit"));
-        totalCostColumn.setCellValueFactory(new PropertyValueFactory<>("totalCost"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        totalColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getAmount() * cellData.getValue().getPrice()));
 
-        // Initialize with all products
-        searchResultTable.setItems(getProductData());
-    }
+        criteriaChoiceBox.getItems().addAll("Name", "Description", "Producer", "Amount", "Price");
+        criteriaChoiceBox.getSelectionModel().selectFirst();
 
-    private ObservableList<Product> getProductData() {
-        // Replace with actual data fetching logic
-        return FXCollections.observableArrayList(
-                new Product(1, "Milk", "Milky", "bueubf",5, 12, 1),
-                new Product(2, "Ice Cream", "Bear", "8", 15, 120, 1),
-                new Product(3, "Cayenne Pepper", "Spic", "13", 5, 65, 1),
-                new Product(4, "Dove", "Dove", "2", 2, 4, 1),
-                new Product(5, "A4", "White", "100", 1, 100, 1),
-                new Product(6, "Skirt", "Zara", "15", 30, 450, 1),
-                new Product(7, "Sneakers", "Zara", "10", 50, 500, 1)
-        );
+        productTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     @FXML
-    private void handleSearch() {
-        String query = searchField.getText().toLowerCase();
-        if (query.isEmpty()) {
-            searchResultTable.setItems(getProductData());
-            return;
+    private void searchProducts() {
+        String criteria = criteriaChoiceBox.getValue();
+        String query = searchField.getText();
+        try {
+            List<Product> products = listProductsByCriteria(criteria, query);
+            productTable.getItems().setAll(products);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-        ObservableList<Product> filteredList = FXCollections.observableArrayList();
-        for (Product product : getProductData()) {
-            if (product.getName().toLowerCase().contains(query) || product.getProducer().toLowerCase().contains(query)) {
-                filteredList.add(product);
-            }
+    private void loadAllProducts() {
+        try {
+            List<Product> products = listProductsByCriteria("name", " ");
+            productTable.getItems().setAll(products);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-        searchResultTable.setItems(filteredList);
+    private List<Product> listProductsByCriteria(String criteria, String query) throws Exception {
+        String response = clientTCP.communicateWithServer("LIST_PRODUCTS_BY_CRITERIA:" + criteria + ":" + query);
+        Gson gson = new Gson();
+        Type productListType = new TypeToken<List<Product>>(){}.getType();
+        return gson.fromJson(response, productListType);
     }
 }

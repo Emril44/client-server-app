@@ -70,42 +70,35 @@ public class ProductDAO {
         }
     }
 
-    public void createGroup(String name, String description) throws SQLException {
-        String query = "INSERT INTO product_groups (name, description) VALUES (?, ?)";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement statement = con.prepareStatement(query)) {
-            statement.setString(1, name);
-            statement.setString(2, description);
-            statement.executeUpdate();
-        }
-    }
-
-    public void assignProductToGroup(int productID, int groupID) throws SQLException {
-        String query = "UPDATE products SET group_id = ? WHERE id = ?";
-        try(Connection con = DBConnection.getConnection();
-        PreparedStatement statement = con.prepareStatement(query)) {
-            statement.setInt(1, groupID);
-            statement.setInt(2, productID);
-            statement.executeUpdate();
-        }
-    }
-
     public List<Product> listProductsByCriteria(String criteria, String searchQuery) throws SQLException {
         String query;
         List<Product> products = new ArrayList<>();
 
-        query = switch (criteria.toLowerCase()) {
-            case "name", "description", "producer" -> "SELECT * FROM products WHERE " + criteria + " LIKE ?";
-            case "amount", "price" -> "SELECT * FROM products WHERE " + criteria + " = ?";
-            default -> throw new IllegalArgumentException("Invalid search criteria: " + criteria);
-        };
+        if(searchQuery.isEmpty()) {
+            query = "SELECT * FROM products";
+        } else {
+            query = switch (criteria.toLowerCase()) {
+                case "name", "description", "producer" -> "SELECT * FROM products WHERE " + criteria + " LIKE ?";
+                case "amount", "price" -> "SELECT * FROM products WHERE " + criteria + " = ?";
+                default -> throw new IllegalArgumentException("Invalid search criteria: " + criteria);
+            };
+        }
 
         try (Connection con = DBConnection.getConnection();
             PreparedStatement statement = con.prepareStatement(query)) {
-            if(criteria.equals("price") || criteria.equals("amount")) {
-                statement.setString(1, searchQuery);
-            } else {
-                statement.setString(1, "%" + searchQuery + "%");
+
+            if(!searchQuery.isEmpty()) {
+                switch (criteria.toLowerCase()) {
+                    case "amount":
+                        statement.setInt(1, Integer.parseInt(searchQuery));
+                        break;
+                    case "price":
+                        statement.setDouble(1, Double.parseDouble(searchQuery));
+                        break;
+                    default:
+                        statement.setString(1, "%" + searchQuery + "%");
+                        break;
+                }
             }
 
             ResultSet res = statement.executeQuery();

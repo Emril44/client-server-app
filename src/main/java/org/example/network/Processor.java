@@ -1,5 +1,6 @@
 package org.example.network;
 
+import com.google.gson.Gson;
 import org.example.models.Message;
 import org.example.models.Packet;
 import org.example.models.Product;
@@ -8,6 +9,7 @@ import org.example.utils.EncryptUtil;
 
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.util.List;
 
 public class Processor {
     private final EncryptUtil encryptor;
@@ -71,6 +73,12 @@ public class Processor {
                 priceProduct.setPrice(Double.parseDouble(parts[2]));
                 productService.updateProduct(priceProduct);
                 return "Price set for product " + parts[1] + ": " + parts[2];
+            case "LIST_PRODUCTS_BY_CRITERIA":
+                String criteria = parts[1];
+                String searchQuery = parts.length > 2 ? parts[2].trim() : "";
+                List<Product> products = productService.listProducts(criteria, searchQuery);
+                Gson gson = new Gson();
+                return gson.toJson(products);
             default:
                 return "Unknown operation";
         }
@@ -80,7 +88,7 @@ public class Processor {
         new Thread(() -> {
             try {
                 if(message.isUDP()) {
-                    String udpRes = new String("acknowledged;" + res);
+                    String udpRes = "acknowledged;" + res;
                     Message resMsgUDP = new Message(1, message.getbUserId(), udpRes.getBytes(), message.isUDP());
                     Packet resPacketUDP = new Packet((byte) 0x13, (byte) message.getbUserId(), System.currentTimeMillis(), resMsgUDP.getMessage().length, resMsgUDP.getMessage());
                     byte[] packetBytesUDP = sender.getPacketHandler().constructPacketBytes(resPacketUDP);
