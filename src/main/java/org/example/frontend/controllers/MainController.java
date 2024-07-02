@@ -30,6 +30,7 @@ public class MainController {
     private HBox mainMenuHBox;
     private Window owner;
     private StoreClientTCP clientTCP;
+    private ProductSearchController searchController;
 
     @FXML
     private void initialize() {
@@ -44,7 +45,8 @@ public class MainController {
     private void handleProductSearch() {
         loadView("/fxml/ProductSearch.fxml", controller -> {
             if(controller instanceof ProductSearchController) {
-                ((ProductSearchController) controller).setClient(clientTCP);
+                searchController = (ProductSearchController) controller;
+                searchController.setClient(clientTCP);
             }
         });
     }

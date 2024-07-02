@@ -136,8 +136,23 @@ public class ProductSearchController {
         return gson.fromJson(response, productListType);
     }
 
-    public void createItem(ActionEvent actionEvent) {
-        showAlert("biggusdickus", "i didn't make this yet :c");
+    public void createItem() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/CreateWindow.fxml"));
+            Parent createView = loader.load();
+
+            CreateController controller = loader.getController();
+            controller.setProductService(productService);
+            controller.setOnProductCreated(this::loadAllProducts);
+
+            Stage stage = new Stage();
+            stage.setTitle("Create Product/Group");
+            stage.setScene(new Scene(createView));
+            controller.setCreateWindowStage(stage);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void editItem(ActionEvent actionEvent) {

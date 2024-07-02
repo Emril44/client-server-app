@@ -51,4 +51,8 @@ public class ProductService {
     public Integer getGroupID(String name) throws SQLException {
         return groupDAO.getGroupID(name);
     }
+
+    public List<String> getAllGroupNames() throws SQLException {
+        return groupDAO.getAllGroupNames();
+    }
 }

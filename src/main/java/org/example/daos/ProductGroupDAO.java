@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductGroupDAO {
     public void createGroup(String name, String description) throws SQLException {
@@ -43,5 +45,18 @@ public class ProductGroupDAO {
             }
         }
         return 0;
+    }
+
+    public List<String> getAllGroupNames() throws SQLException {
+        List<String> groupNames = new ArrayList<>();
+        String query = "SELECT name FROM product_groups";
+        try(Connection con = DBConnection.getConnection();
+        PreparedStatement statement = con.prepareStatement(query);
+        ResultSet res = statement.executeQuery()) {
+            while(res.next()) {
+                groupNames.add(res.getString("name"));
+            }
+        }
+        return groupNames;
     }
 }

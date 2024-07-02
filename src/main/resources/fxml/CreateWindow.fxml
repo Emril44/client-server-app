@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.171" minWidth="300" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frontend.controllers.CreateController">
+    <TabPane>
+        <Tab text="Create Product">
+            <VBox spacing="10">
+                <Label text="Name"/>
+                <TextField fx:id="productNameField"/>
+                <Label text="Description"/>
+                <TextField fx:id="productDescriptionField"/>
+                <Label text="Producer"/>
+                <TextField fx:id="productProducerField"/>
+                <Label text="Amount"/>
+                <TextField fx:id="productAmountField"/>
+                <Label text="Price"/>
+                <TextField fx:id="productPriceField"/>
+                <Label text="Group"/>
+                <ChoiceBox fx:id="productGroupChoiceBox"/>
+                <Button text="Create Product" onAction="#handleCreateProduct"/>
+            </VBox>
+        </Tab>
+        <Tab text="Create Group">
+            <VBox spacing="10">
+                <Label text="Group Name"/>
+                <TextField fx:id="groupNameField"/>
+                <Label text="Group Description"/>
+                <TextField fx:id="groupDescriptionField"/>
+                <Button text="Create Group" onAction="#handleCreateGroup"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>
