@@ -41,4 +41,17 @@ public class ProductGroupDAO {
         }
         return null;
     }
+
+    public int getGroupID(String name) throws SQLException {
+        String query = "SELECT id FROM product_groups WHERE name LIKE ?";
+        try(Connection con = DBConnection.getConnection();
+        PreparedStatement statement = con.prepareStatement(query)) {
+            statement.setString(1, name);
+            ResultSet res = statement.executeQuery();
+            if(res.next()) {
+                return res.getInt("id");
+            }
+        }
+        return 0;
+    }
 }

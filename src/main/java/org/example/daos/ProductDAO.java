@@ -79,7 +79,7 @@ public class ProductDAO {
         } else {
             query = switch (criteria.toLowerCase()) {
                 case "name", "description", "producer" -> "SELECT * FROM products WHERE " + criteria + " LIKE ?";
-                case "amount", "price" -> "SELECT * FROM products WHERE " + criteria + " = ?";
+                case "amount", "price", "group_id" -> "SELECT * FROM products WHERE " + criteria + " = ?";
                 default -> throw new IllegalArgumentException("Invalid search criteria: " + criteria);
             };
         }
@@ -89,7 +89,7 @@ public class ProductDAO {
 
             if(!searchQuery.isEmpty()) {
                 switch (criteria.toLowerCase()) {
-                    case "amount":
+                    case "amount", "group_id":
                         statement.setInt(1, Integer.parseInt(searchQuery));
                         break;
                     case "price":

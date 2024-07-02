@@ -77,8 +77,7 @@ public class ProductSearchController {
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         totalColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getAmount() * cellData.getValue().getPrice()));
 
-        criteriaChoiceBox.getItems().addAll("Name", "Description", "Producer", "Amount", "Price");
-        criteriaChoiceBox.getSelectionModel().selectFirst();
+        criteriaChoiceBox.getItems().addAll("Name", "Description", "Producer", "Amount", "Price", "Group");
 
         productTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
@@ -105,6 +104,19 @@ public class ProductSearchController {
     }
 
     private List<Product> listProductsByCriteria(String criteria, String query) throws Exception {
+        if(criteria.equals("Group")) {
+            if(query.isEmpty()) {
+                return sendCommunication(criteria, query);
+            }
+            String idQuery = productService.getGroupID(query).toString();
+            String idCriteria = "group_id";
+            return sendCommunication(idCriteria, idQuery);
+        }
+
+        return sendCommunication(criteria, query);
+    }
+
+    private List<Product> sendCommunication(String criteria, String query) throws Exception {
         String response = clientTCP.communicateWithServer("LIST_PRODUCTS_BY_CRITERIA:" + criteria + ":" + query);
         Gson gson = new Gson();
         Type productListType = new TypeToken<List<Product>>(){}.getType();

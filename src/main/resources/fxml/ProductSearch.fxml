@@ -14,7 +14,7 @@
         <HBox spacing="10" alignment="CENTER">
             <Label text="Search Products:"/>
             <TextField fx:id="searchField" promptText="Enter product data"/>
-            <ComboBox fx:id="criteriaChoiceBox"/>
+            <ComboBox fx:id="criteriaChoiceBox" promptText="Select search criteria"/>
             <Button text="Search" onAction="#searchProducts"/>
         </HBox>
         <TableView fx:id="productTable">

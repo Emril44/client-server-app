@@ -42,4 +42,8 @@ public class ProductService {
     public String getGroupName(int groupID) throws SQLException {
         return groupDAO.getGroupName(groupID);
     }
+
+    public Integer getGroupID(String name) throws SQLException {
+        return groupDAO.getGroupID(name);
+    }
 }

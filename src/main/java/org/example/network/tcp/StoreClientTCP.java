@@ -64,9 +64,7 @@ public class StoreClientTCP {
         try {
             byte[] resData = (byte[]) in.readObject();
             Packet resPacket = packetHandler.parsePacket(resData, key);
-            String response = new String(resPacket.getMessage());
-            System.out.println("Server response: " + response);
-            return response;
+            return new String(resPacket.getMessage());
         } catch (Exception e) {
             System.err.println("Error in client receiving or processing packet!");
             e.printStackTrace();
