@@ -19,16 +19,6 @@ public class ProductGroupDAO {
         }
     }
 
-    public void assignProductToGroup(int productID, int groupID) throws SQLException {
-        String query = "UPDATE products SET group_id = ? WHERE id = ?";
-        try(Connection con = DBConnection.getConnection();
-            PreparedStatement statement = con.prepareStatement(query)) {
-            statement.setInt(1, groupID);
-            statement.setInt(2, productID);
-            statement.executeUpdate();
-        }
-    }
-
     public String getGroupName(int groupID) throws SQLException {
         String query = "SELECT name FROM product_groups WHERE id = ?";
         try(Connection con = DBConnection.getConnection();

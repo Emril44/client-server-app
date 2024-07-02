@@ -41,15 +41,6 @@ public class MainController {
     }
 
     @FXML
-    private void handleOpenProductStorage() {
-        loadView("/fxml/ProductStorage.fxml", controller -> {
-            if(controller instanceof ProductStorageController) {
-                ((ProductStorageController) controller).setClient(clientTCP);
-            }
-        });
-    }
-
-    @FXML
     private void handleProductSearch() {
         loadView("/fxml/ProductSearch.fxml", controller -> {
             if(controller instanceof ProductSearchController) {
@@ -68,10 +59,7 @@ public class MainController {
             Parent view = loader.load();
             Object controller = loader.getController();
 
-            if(controller instanceof ProductStorageController) {
-                ((ProductStorageController) controller).setOwner(owner);
-                controllerConsumer.accept(controller);
-            } else if(controller instanceof ProductSearchController) {
+            if(controller instanceof ProductSearchController) {
                 ((ProductSearchController) controller).setOwner(owner);
                 controllerConsumer.accept(controller);
             }

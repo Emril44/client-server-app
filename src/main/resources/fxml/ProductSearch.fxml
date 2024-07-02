@@ -28,6 +28,13 @@
                 <TableColumn text="Total Cost" fx:id="totalColumn"/>
             </columns>
         </TableView>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Create" onAction="#createItem" />
+            <Button fx:id="editButton" text="Edit" onAction="#editItem" disable="true"/>
+            <Button fx:id="deleteButton" text="Delete" onAction="#deleteItem" disable="true"/>
+            <Button text="Total Cost of All Products" onAction="#calculateTotalCost" />
+            <Button text="Total Cost per Group" onAction="#calculateTotalCostPerGroup" />
+        </HBox>
     </VBox>
 </VBox>
 

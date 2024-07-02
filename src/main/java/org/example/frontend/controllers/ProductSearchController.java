@@ -6,12 +6,14 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.example.models.Product;
 import org.example.network.tcp.StoreClientTCP;
@@ -20,6 +22,7 @@ import org.example.services.ProductService;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class ProductSearchController {
     @FXML
@@ -42,9 +45,13 @@ public class ProductSearchController {
     private TableColumn<Product, Double> priceColumn;
     @FXML
     private TableColumn<Product, Double> totalColumn;
+    @FXML
+    private Button editButton;
+    @FXML
+    private Button deleteButton;
 
     private StoreClientTCP clientTCP;
-    private ProductService productService = new ProductService();
+    private final ProductService productService = new ProductService();
 
     private Window owner;
 
@@ -59,6 +66,12 @@ public class ProductSearchController {
 
     @FXML
     public void initialize() {
+        productTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            boolean isSelected = newSelection != null;
+            editButton.setDisable(!isSelected);
+            deleteButton.setDisable(!isSelected);
+        });
+
         groupColumn.setCellValueFactory(cellData -> {
                 Product product = cellData.getValue();
                 try {
@@ -121,5 +134,60 @@ public class ProductSearchController {
         Gson gson = new Gson();
         Type productListType = new TypeToken<List<Product>>(){}.getType();
         return gson.fromJson(response, productListType);
+    }
+
+    public void createItem(ActionEvent actionEvent) {
+        showAlert("biggusdickus", "i didn't make this yet :c");
+    }
+
+    public void editItem(ActionEvent actionEvent) {
+        showAlert("biggusdickus", "i didn't make this yet :c");
+    }
+
+    public void deleteItem(ActionEvent actionEvent) {
+        showAlert("biggusdickus", "i didn't make this yet :c");
+    }
+
+    @FXML
+    private void calculateTotalCost() {
+        try {
+            String response = clientTCP.communicateWithServer("CALCULATE_TOTAL_COST");
+            showAlert("Total Cost of All Products", response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void calculateTotalCostPerGroup() {
+        try {
+            String response = clientTCP.communicateWithServer("CALCULATE_TOTAL_COST_PER_GROUP");
+            Gson gson = new Gson();
+            Type mapType = new TypeToken<Map<String, Double>>() {}.getType();
+            Map<String, Double> totalCostPerGroup = gson.fromJson(response, mapType);
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/TotalCostPerGroup.fxml"));
+            Parent totalCostView = loader.load();
+
+            TotalCostPerGroupController controller = loader.getController();
+
+            controller.populateTable(totalCostPerGroup);
+
+            Stage stage = new Stage();
+            stage.setTitle("Total Cost per Group");
+            stage.setScene(new Scene(totalCostView));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.initOwner(owner);
+        alert.showAndWait();
     }
 }

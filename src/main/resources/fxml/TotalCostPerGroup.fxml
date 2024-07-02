@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frontend.controllers.TotalCostPerGroupController">
+    <TableView fx:id="totalCostTable">
+        <columns>
+            <TableColumn fx:id="groupNameColumn" text="Group Name">
+                <cellValueFactory>
+                    <PropertyValueFactory property="groupName"/>
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="totalCostColumn" text="Total Cost">
+                <cellValueFactory>
+                    <PropertyValueFactory property="totalCost"/>
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+</VBox>

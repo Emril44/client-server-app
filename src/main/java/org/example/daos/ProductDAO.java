@@ -3,14 +3,18 @@ package org.example.daos;
 import org.example.models.Product;
 import org.example.utils.DBConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProductDAO {
+    private final ProductGroupDAO groupDAO;
+
+    public ProductDAO(ProductGroupDAO groupDAO) {
+        this.groupDAO = groupDAO;
+    }
     public void createProduct(Product product) throws SQLException {
         String query = "INSERT INTO products (name, description, producer, amount, price, group_id) VALUES (?, ?, ?, ?, ?, ?)";
         try(Connection con = DBConnection.getConnection();
@@ -114,5 +118,34 @@ public class ProductDAO {
             }
         }
         return products;
+    }
+
+    public double calculateTotalCost() throws SQLException {
+        String query = "SELECT SUM(amount * price) AS total_cost FROM products";
+        try(Connection con = DBConnection.getConnection();
+        Statement statement = con.createStatement();
+        ResultSet res = statement.executeQuery(query)) {
+            if(res.next()) {
+                return res.getDouble("total_cost");
+            }
+        }
+        return 0.0;
+    }
+
+    public Map<String, Double> calculateTotalCostPerGroup() throws SQLException {
+        Map<String, Double> totalCostPerGroup = new HashMap<>();
+        String query = "SELECT group_id, SUM(amount * price) AS total_cost FROM products GROUP BY group_id";
+        try(Connection con = DBConnection.getConnection();
+        Statement statement = con.createStatement();
+        ResultSet res = statement.executeQuery(query)) {
+            while (res.next()) {
+                int groupID = res.getInt("group_id");
+                double totalCost = res.getDouble("total_cost");
+                String groupName = groupDAO.getGroupName(groupID);
+                totalCostPerGroup.put(groupName, totalCost);
+            }
+        }
+
+        return totalCostPerGroup;
     }
 }

@@ -6,10 +6,11 @@ import org.example.models.Product;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class ProductService {
-    private final ProductDAO productDAO = new ProductDAO();
     private final ProductGroupDAO groupDAO = new ProductGroupDAO();
+    private final ProductDAO productDAO = new ProductDAO(groupDAO);
 
     public void createProduct(Product product) throws SQLException {
         productDAO.createProduct(product);
@@ -27,16 +28,20 @@ public class ProductService {
         productDAO.deleteProduct(id);
     }
 
-    public void createGroup(String name, String description) throws SQLException {
-        groupDAO.createGroup(name, description);
-    }
-
-    public void assignProductToGroup(int productID, int groupID) throws SQLException {
-        groupDAO.assignProductToGroup(productID, groupID);
-    }
-
     public List<Product> listProducts(String criteria, String query) throws SQLException {
         return productDAO.listProductsByCriteria(criteria, query);
+    }
+
+    public double calculateTotalCost() throws SQLException {
+        return productDAO.calculateTotalCost();
+    }
+
+    public Map<String, Double> calculateTotalCostPerGroup() throws SQLException {
+        return productDAO.calculateTotalCostPerGroup();
+    }
+
+    public void createGroup(String name, String description) throws SQLException {
+        groupDAO.createGroup(name, description);
     }
 
     public String getGroupName(int groupID) throws SQLException {
