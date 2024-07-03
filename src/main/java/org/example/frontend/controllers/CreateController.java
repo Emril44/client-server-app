@@ -8,6 +8,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.models.Product;
+import org.example.network.tcp.StoreClientTCP;
 import org.example.services.ProductService;
 
 public class CreateController {
@@ -31,6 +32,11 @@ public class CreateController {
     private ProductService productService;
     private Stage createWindowStage;
     private Runnable onProductCreated;
+    private StoreClientTCP clientTCP;
+
+    public void setClientTCP(StoreClientTCP clientTCP) {
+        this.clientTCP = clientTCP;
+    }
 
     public void setCreateWindowStage(Stage createWindowStage) {
         this.createWindowStage = createWindowStage;
@@ -63,12 +69,16 @@ public class CreateController {
             double price = Double.parseDouble(productPriceField.getText());
             int groupId = productService.getGroupID(productGroupChoiceBox.getValue());
 
-            Product product = new Product(0, name, description, producer, amount, price, groupId);
-            productService.createProduct(product);
-            if(onProductCreated != null) {
-                onProductCreated.run();
+            String response = clientTCP.communicateWithServer("CREATE_PRODUCT:" + name + ":" + description + ":" + producer + ":" + amount + ":" + price + ":" + groupId);
+
+            if(response.equals("Product created successfully.")) {
+                if(onProductCreated != null) {
+                    onProductCreated.run();
+                }
+                showAlert(Alert.AlertType.INFORMATION, "Product Created", "Product created successfully.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Error creating product.");
             }
-            showAlert(Alert.AlertType.INFORMATION, "Product Created", "Product created successfully.");
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Error creating product.");
@@ -81,11 +91,16 @@ public class CreateController {
             String name = groupNameField.getText();
             String description = groupDescriptionField.getText();
 
-            productService.createGroup(name, description);
-            if(onProductCreated != null) {
-                onProductCreated.run();
+            String response = clientTCP.communicateWithServer("CREATE_GROUP:" + name + ":" + description);
+
+            if(response.equals("Group created successfully.")) {
+                if(onProductCreated != null) {
+                    onProductCreated.run();
+                }
+                showAlert(Alert.AlertType.INFORMATION, "Group Created", "Group created successfully.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Error creating group.");
             }
-            showAlert(Alert.AlertType.INFORMATION, "Group Created", "Group created successfully.");
         } catch (Exception e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Error creating group.");

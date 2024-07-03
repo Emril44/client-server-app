@@ -6,9 +6,33 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="fxml.EditWindow"
-            prefHeight="400.0" prefWidth="600.0">
-
-</AnchorPane>
+<VBox xmlns="http://javafx.com/javafx/8.0.171" minWidth="300" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frontend.controllers.EditController">
+    <TabPane fx:id="editPane">
+        <Tab fx:id="productTab" text="Edit Product" closable="false">
+            <VBox spacing="10">
+                <Label text="Name"/>
+                <TextField fx:id="productNameField"/>
+                <Label text="Description"/>
+                <TextField fx:id="productDescriptionField"/>
+                <Label text="Producer"/>
+                <TextField fx:id="productProducerField"/>
+                <Label text="Amount"/>
+                <TextField fx:id="productAmountField"/>
+                <Label text="Price"/>
+                <TextField fx:id="productPriceField"/>
+                <Label text="Group"/>
+                <ChoiceBox fx:id="productGroupChoiceBox"/>
+                <Button text="Edit Product" onAction="#handleConfirmEdit"/>
+            </VBox>
+        </Tab>
+        <Tab fx:id="groupTab" text="Edit Group" closable="false">
+            <VBox spacing="10">
+                <Label text="Group Name"/>
+                <TextField fx:id="groupNameField"/>
+                <Label text="Group Description"/>
+                <TextField fx:id="groupDescriptionField"/>
+                <Button text="Edit Group" onAction="#handleConfirmEdit"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.example.models.Message;
 import org.example.models.Packet;
 import org.example.models.Product;
+import org.example.models.ProductGroup;
 import org.example.services.ProductService;
 import org.example.utils.EncryptUtil;
 
@@ -82,18 +83,42 @@ public class Processor {
         return "Product distributed. New amount of product " + parts[1] + ": " + newAmount;
     }
 
-    private String createProduct(String[] parts) {
-        // Extract product details from parts and create a new product in the database
+    private String createProduct(String[] parts) throws SQLException {
+        String name = parts[1];
+        String description = parts[2];
+        String producer = parts[3];
+        int amount = Integer.parseInt(parts[4]);
+        double price = Double.parseDouble(parts[5]);
+        int groupId = Integer.parseInt(parts[6]);
+
+        Product product = new Product(0, name, description, producer, amount, price, groupId);
+        productService.createProduct(product);
+
         return "Product created successfully.";
     }
 
     private String editProduct(String[] parts) {
-        // Extract product details from parts and update the product in the database
-        return "Product edited successfully.";
+        try {
+            int productId = Integer.parseInt(parts[1]);
+            String name = parts[2];
+            String description = parts[3];
+            String producer = parts[4];
+            int amount = Integer.parseInt(parts[5]);
+            double price = Double.parseDouble(parts[6]);
+            int groupId = Integer.parseInt(parts[7]);
+
+            Product product = new Product(productId, name, description, producer, amount, price, groupId);
+            productService.updateProduct(product);
+
+            return "Product edited successfully.";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error editing product: " + e.getMessage();
+        }
     }
 
-    private String deleteProduct(int productId) {
-        // Delete the product from the database
+    private String deleteProduct(int productId) throws SQLException {
+        productService.deleteProduct(productId);
         return "Product deleted successfully.";
     }
 
@@ -105,12 +130,22 @@ public class Processor {
     }
 
     private String editGroup(String[] parts) {
-        // Extract group details from parts and update the group in the database
-        return "Group edited successfully.";
+        try {
+            int groupID = Integer.parseInt(parts[1]);
+            String name = parts[2];
+            String description = parts[3];
+
+            ProductGroup group = new ProductGroup(groupID, name, description);
+            productService.updateGroup(group);
+
+            return "Group edited successfully.";
+        } catch (Exception e) {
+            return "Error editing group: " + e.getMessage();
+        }
     }
 
-    private String deleteGroup(int groupId) {
-        // Delete the group from the database
+    private String deleteGroup(int groupId) throws SQLException {
+        productService.deleteGroup(groupId);
         return "Group deleted successfully.";
     }
 

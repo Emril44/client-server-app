@@ -8,7 +8,7 @@
 
 <VBox xmlns="http://javafx.com/javafx/8.0.171" minWidth="300" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.frontend.controllers.CreateController">
     <TabPane>
-        <Tab text="Create Product">
+        <Tab text="Create Product" closable="false">
             <VBox spacing="10">
                 <Label text="Name"/>
                 <TextField fx:id="productNameField"/>
@@ -25,7 +25,7 @@
                 <Button text="Create Product" onAction="#handleCreateProduct"/>
             </VBox>
         </Tab>
-        <Tab text="Create Group">
+        <Tab text="Create Group" closable="false">
             <VBox spacing="10">
                 <Label text="Group Name"/>
                 <TextField fx:id="groupNameField"/>

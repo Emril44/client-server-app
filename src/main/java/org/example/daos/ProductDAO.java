@@ -52,7 +52,7 @@ public class ProductDAO {
     }
 
     public void updateProduct(Product product) throws SQLException {
-        String query = "UPDATE products SET name = ?, description = ?, producer = ?, amount = ?, price = ? WHERE id = ?";
+        String query = "UPDATE products SET name = ?, description = ?, producer = ?, amount = ?, price = ?, group_id = ? WHERE id = ?";
         try (Connection con = DBConnection.getConnection();
             PreparedStatement statement = con.prepareStatement(query)) {
             statement.setString(1, product.getName());
@@ -61,6 +61,7 @@ public class ProductDAO {
             statement.setInt(4, product.getAmount());
             statement.setDouble(5, product.getPrice());
             statement.setInt(6, product.getId());
+            statement.setInt(7, product.getGroupID());
             statement.executeUpdate();
         }
     }

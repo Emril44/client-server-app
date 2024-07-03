@@ -143,6 +143,7 @@ public class ProductSearchController {
 
             CreateController controller = loader.getController();
             controller.setProductService(productService);
+            controller.setClientTCP(clientTCP);
             controller.setOnProductCreated(this::loadAllProducts);
 
             Stage stage = new Stage();
@@ -155,12 +156,52 @@ public class ProductSearchController {
         }
     }
 
-    public void editItem(ActionEvent actionEvent) {
-        showAlert("biggusdickus", "i didn't make this yet :c");
+    public void editItem() {
+        Product selectedProduct = productTable.getSelectionModel().getSelectedItem();
+        if(selectedProduct != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/EditWindow.fxml"));
+                Parent editView = loader.load();
+
+                EditController controller = loader.getController();
+                controller.setProductService(productService);
+                controller.setClientTCP(clientTCP);
+                controller.setProductToEdit(selectedProduct);
+                controller.setOnProductCreated(this::loadAllProducts);
+
+                Stage stage = new Stage();
+                stage.setTitle("Create Product/Group");
+                stage.setScene(new Scene(editView));
+                controller.setEditWindowStage(stage);
+                stage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public void deleteItem(ActionEvent actionEvent) {
-        showAlert("biggusdickus", "i didn't make this yet :c");
+    public void deleteItem() {
+        Product selectedProduct = productTable.getSelectionModel().getSelectedItem();
+        if (selectedProduct != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DeleteWindow.fxml"));
+                Parent deleteView = loader.load();
+
+                DeleteController controller = loader.getController();
+                controller.setProductService(productService);
+                controller.setClientTCP(clientTCP);
+                controller.setProductToDelete(selectedProduct);
+                controller.setOnItemDeleted(this::loadAllProducts);
+
+                Stage stage = new Stage();
+                stage.setTitle("Delete Product");
+                stage.setScene(new Scene(deleteView));
+                controller.setDeleteWinStage(stage);
+                stage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
