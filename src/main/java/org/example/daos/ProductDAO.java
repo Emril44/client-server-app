@@ -60,8 +60,8 @@ public class ProductDAO {
             statement.setString(3, product.getProducer());
             statement.setInt(4, product.getAmount());
             statement.setDouble(5, product.getPrice());
-            statement.setInt(6, product.getId());
-            statement.setInt(7, product.getGroupID());
+            statement.setInt(6, product.getGroupID());
+            statement.setInt(7, product.getId());
             statement.executeUpdate();
         }
     }

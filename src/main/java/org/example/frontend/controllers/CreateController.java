@@ -93,17 +93,17 @@ public class CreateController {
 
             String response = clientTCP.communicateWithServer("CREATE_GROUP:" + name + ":" + description);
 
-            if(response.equals("Group created successfully.")) {
+            if(response.equals("Group added: " + name)) {
                 if(onProductCreated != null) {
                     onProductCreated.run();
                 }
                 showAlert(Alert.AlertType.INFORMATION, "Group Created", "Group created successfully.");
             } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "Error creating group.");
+                showAlert(Alert.AlertType.ERROR, "Error", "Error creating group1.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "Error creating group.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Error creating group2.");
         }
     }
 
